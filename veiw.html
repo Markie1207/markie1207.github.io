@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美甲預約查詢系統</title>
+    <title>美甲預約查詢</title>
     <style>
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
@@ -13,7 +13,7 @@
             background-color: #f9f2f4;
             color: #333;
         }
-        
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -22,130 +22,11 @@
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         h1 {
             text-align: center;
             color: #e83e8c;
             margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .submit-btn {
-            background-color: #e83e8c;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 18px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-        }
-        
-        .submit-btn:hover {
-            background-color: #d6336c;
-        }
-
-        .query-result {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .appointment-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .appointment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .appointment-status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .status-confirmed {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .appointment-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .detail-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .detail-value {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .services-list {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-
-        .service-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .total-price {
-            margin-top: 15px;
-            text-align: right;
-            font-weight: bold;
-            color: #e83e8c;
-            font-size: 18px;
-        }
-
-        .error-message {
-            color: #dc3545;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
         }
 
         .query-tabs {
@@ -156,53 +37,99 @@
 
         .query-tab {
             padding: 10px 20px;
-            border: none;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
             border-radius: 5px;
             cursor: pointer;
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+        }
+
+        .query-tab:hover {
+            background-color: #e9ecef;
         }
 
         .query-tab.active {
             background-color: #e83e8c;
             color: white;
+            border-color: #e83e8c;
         }
 
-        .example-section {
-            margin: 20px 0;
-            padding-top: 15px;
-            border-top: 1px dashed #e83e8c;
+        .query-form {
+            margin-bottom: 30px;
         }
 
-        .example-title {
-            text-align: center;
-            color: #e83e8c;
-            font-size: 1.2em;
-            margin-bottom: 15px;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .example-card {
-            opacity: 0.8;
-            position: relative;
-            padding: 15px;
-            font-size: 0.9em;
-        }
-
-        .example-card::before {
-            content: "範例";
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background-color: #e83e8c;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
+        label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
         }
 
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            background-color: #e83e8c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #d6336c;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .appointment-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .appointment-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .status-confirmed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
         .appointment-details-simple {
-            margin-top: 10px;
+            line-height: 1.8;
         }
 
         .detail-row {
@@ -211,254 +138,598 @@
             margin-bottom: 10px;
         }
 
+        .detail-item {
+            flex: 1;
+        }
+
+        .detail-label {
+            color: #666;
+            margin-right: 10px;
+        }
+
         .services-summary {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
         }
 
-        .service-text {
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 50px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
             color: #666;
-            font-size: 0.9em;
         }
 
-        .price-text {
-            color: #e83e8c;
-            font-weight: bold;
+        .close-btn:hover {
+            color: #333;
         }
-        .no-result-message {
-            text-align: center;
-            padding: 30px;
+
+        .example-section {
+            margin-top: 30px;
+            padding: 20px;
             background-color: #f8f9fa;
-            border-radius: 8px;
-            margin-top: 20px;
+            border-radius: 5px;
         }
 
-        .no-result-message p {
-            margin: 5px 0;
-            color: #6c757d;
-        }
-
-        .no-result-message p:first-child {
-            font-size: 1.2em;
-            color: #e83e8c;
+        .example-title {
             font-weight: bold;
+            margin-bottom: 10px;
+            color: #e83e8c;
+        }
+
+        .example-content {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .example-item {
+            margin-bottom: 10px;
+        }
+
+        .example-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        /* 日期選擇器樣式 */
+        .date-picker-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .date-display {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .date-display.readonly {
+            background-color: #e9ecef;
+            cursor: default;
+        }
+
+        .date-picker-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            opacity: 0;
+        }
+
+        /* 服務選項樣式 */
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .service-option {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .service-option:hover {
+            background-color: #f8f9fa;
+        }
+
+        .service-option.selected {
+            border-color: #e83e8c;
+            background-color: #fef0f5;
+        }
+
+        .service-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .service-price {
+            color: #e83e8c;
+        }
+
+        .total-price-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: right;
+        }
+
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e83e8c;
+        }
+
+        /* 時段選擇樣式 */
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .time-slot {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-slot:hover {
+            background-color: #f8f9fa;
+        }
+
+        .time-slot.selected {
+            background-color: #e83e8c;
+            color: white;
+            border-color: #e83e8c;
+        }
+
+        .time-slot.unavailable {
+            background-color: #f1f1f1;
+            color: #999;
+            cursor: not-allowed;
+            text-decoration: line-through;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>預約紀錄查詢</h1>
-
-        <div class="query-tabs">
-            <button class="query-tab active" data-query-type="phone">手機號碼查詢</button>
-            <button class="query-tab" data-query-type="combined">手機+姓名查詢</button>
-        </div>
+        <h1>預約查詢</h1>
         
-        <form id="queryForm">
-            <div class="form-group" id="phoneQueryGroup">
-                <label for="phone">手機號碼</label>
-                <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="請輸入預約時使用的手機號碼">
+        <form id="queryForm" class="query-form">
+            <div id="phoneQueryGroup">
+                <div class="form-group">
+                    <label for="phone">手機號碼</label>
+                    <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="請輸入10位數手機號碼">
+                </div>
             </div>
             
-            <div class="form-group" id="combinedQueryGroup" style="display: none;">
-                <div class="form-group">
-                    <label for="combinedPhone">手機號碼</label>
-                    <input type="tel" id="combinedPhone" name="combinedPhone" pattern="[0-9]{10}" placeholder="請輸入預約時使用的手機號碼">
-                </div>
-                <div class="form-group">
-                    <label for="name">姓名</label>
-                    <input type="text" id="name" name="name" placeholder="請輸入預約時使用的姓名">
-                </div>
-            </div>
-
             <button type="submit" class="submit-btn">查詢預約</button>
         </form>
 
-        <div id="errorMessage" class="error-message"></div>
-
-        <div id="queryResult" class="query-result">
-        </div>
-
-<!-- 修改範例區域的顯示 -->
-<div class="example-section">
-    <h2 class="example-title">查詢結果範例</h2>
-    <div class="appointment-card example-card">
-        <div class="appointment-header">
-            <span class="appointment-status status-confirmed">已確認</span>
-        </div>
-        <div class="appointment-details-simple">
-            <div class="detail-row">
-                <div class="detail-item">
-                    <span class="detail-label">預約日期時間</span>
-                    <span class="detail-value">2025/03/15 14:00</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">顧客資料</span>
-                    <span class="detail-value">王小明 (0912345678)</span>
+         <!-- 修改為查詢結果範例 -->
+         <div id="exampleSection" class="example-section">
+            <div class="example-title">查詢結果範例</div>
+            <div class="example-content">
+                <div class="appointment-card">
+                    <div class="appointment-header">
+                        <span class="appointment-status status-confirmed">已確認</span>
+                    </div>
+                    <div class="appointment-details-simple">
+                        <div class="detail-row">
+                            <div class="detail-item">
+                                <span class="detail-label">預約日期時間：</span>
+                                <span class="detail-value">2025/03/28 14:00</span>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-item">
+                                <span class="detail-label">顧客姓名：</span>
+                                <span class="detail-value">王小明</span>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-item">
+                                <span class="detail-label">手機號碼：</span>
+                                <span class="detail-value">0987654321</span>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-item">
+                                <span class="detail-label">美甲師：</span>
+                                <span class="detail-value">美甲師A</span>
+                            </div>
+                        </div>
+                        <div class="services-summary">
+                            <span class="service-text">基礎美甲</span>
+                            <span class="price-text">總金額：NT$800</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="detail-row">
-                <div class="detail-item">
-                    <span class="detail-label">美甲師</span>
-                    <span class="detail-value">美甲師A</span>
-                </div>
-            </div>
-            <div class="services-summary">
-                <span class="service-text">基礎美甲, 凝膠美甲</span>
-                <span class="price-text">總金額：NT$2,000</span>
+        </div>
+        <div id="queryResult" style="display: none;"></div>
+
+        <!-- 編輯預約的彈出視窗 -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>編輯預約</h2>
+                <form id="editForm">
+                    <input type="hidden" id="editAppointmentId">
+                    
+                    <!-- 日期選擇器 -->
+                    <div class="form-group">
+                        <label>預約日期</label>
+                        <div class="date-picker-container">
+                            <div id="dateDisplay" class="date-display"></div>
+                        </div>
+                    </div>
+
+                    <!-- 美甲師選擇 -->
+                    <div class="form-group">
+                        <label>選擇美甲師</label>
+                        <div class="schedule-tabs">
+                            <div class="schedule-tab" data-beautician="美甲師A">美甲師A</div>
+                            <div class="schedule-tab" data-beautician="美甲師B">美甲師B</div>
+                            <div class="schedule-tab" data-beautician="美甲師C">美甲師C</div>
+                        </div>
+                    </div>
+
+                    <!-- 時段選擇 -->
+                    <div class="form-group">
+                        <label>選擇時段</label>
+                        <div class="time-slots">
+                            <div class="time-slot" data-time="10:00">10:00</div>
+                            <div class="time-slot" data-time="11:00">11:00</div>
+                            <div class="time-slot" data-time="12:00">12:00</div>
+                            <div class="time-slot" data-time="13:00">13:00</div>
+                            <div class="time-slot" data-time="14:00">14:00</div>
+                            <div class="time-slot" data-time="15:00">15:00</div>
+                            <div class="time-slot" data-time="16:00">16:00</div>
+                            <div class="time-slot" data-time="17:00">17:00</div>
+                            <div class="time-slot" data-time="18:00">18:00</div>
+                            <div class="time-slot" data-time="19:00">19:00</div>
+                        </div>
+                    </div>
+
+                    <!-- 服務選項 -->
+                    <div class="form-group">
+                        <label>選擇服務</label>
+                        <div class="service-options">
+                            <div class="service-option" data-service="基礎美甲" data-price="800">
+                                <div class="service-name">基礎美甲</div>
+                                <div class="service-price">NT$800</div>
+                            </div>
+                            <div class="service-option" data-service="凝膠美甲" data-price="1200">
+                                <div class="service-name">凝膠美甲</div>
+                                <div class="service-price">NT$1200</div>
+                            </div>
+                            <div class="service-option" data-service="藝術美甲" data-price="1500">
+                                <div class="service-name">藝術美甲</div>
+                                <div class="service-price">NT$1500</div>
+                            </div>
+                            <div class="service-option" data-service="指甲延長" data-price="1800">
+                                <div class="service-name">指甲延長</div>
+                                <div class="service-price">NT$1800</div>
+                            </div>
+                            <div class="service-option" data-service="凝膠卸除" data-price="500">
+                                <div class="service-name">凝膠卸除</div>
+                                <div class="service-price">NT$500</div>
+                            </div>
+                        </div>
+                        <div class="total-price-container">
+                            總金額: <span class="total-price">NT$0</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">保存修改</button>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
     <script>
-        document.querySelectorAll('.query-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.query-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-
-                document.getElementById('phoneQueryGroup').style.display = 'none';
-                document.getElementById('combinedQueryGroup').style.display = 'none';
-
-                const queryType = this.dataset.queryType;
-                switch(queryType) {
-                    case 'phone':
-                        document.getElementById('phoneQueryGroup').style.display = 'block';
-                        break;
-                    case 'combined':
-                        document.getElementById('combinedQueryGroup').style.display = 'block';
-                        break;
-                }
-
-                document.getElementById('queryForm').reset();
-                document.getElementById('errorMessage').style.display = 'none';
-                document.getElementById('queryResult').style.display = 'none';
-                document.querySelector('.example-section').style.display = 'block';
-            });
-        });
-
         // 模擬資料庫中的預約記錄
-            const defaultAppointment = {
-                    name: '彭方筠',
-                    phone: '0987720962',
-                    date: '2025/03/28',
-                    time: '14:00',
-                    beautician: '美甲師A',
-                    service: '基礎美甲',
-                    status: '已確認',
-                    price: 800
-                }
+        let appointments = [{
+            id: 1,
+            name: '彭方筠',
+            phone: '0987720962',
+            date: '2025/03/28',
+            time: '14:00',
+            beautician: '美甲師A',
+            service: '基礎美甲',
+            status: '已確認',
+            price: 800
+        }];
 
-        document.getElementById('queryForm').addEventListener('submit', function(e) {
+                // 修改查詢表單提交處理
+                document.getElementById('queryForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const errorMessage = document.getElementById('errorMessage');
-            const queryResult = document.getElementById('queryResult');
-            const exampleSection = document.querySelector('.example-section');
-
-            const activeTab = document.querySelector('.query-tab.active');
-            const queryType = activeTab.dataset.queryType;
-
-            let isValid = true;
-            let errorText = '';
-            let queryData = {};
-
-            switch(queryType) {
-                case 'phone':
-                    const phone = document.getElementById('phone').value;
-                    if (!phone) {
-                        errorText = '請輸入手機號碼';
-                        isValid = false;
-                    } else if (!/^\d{10}$/.test(phone)) {
-                        errorText = '請輸入有效的10位手機號碼';
-                        isValid = false;
-                    }
-                    queryData = { phone };
-                    break;
-
-                case 'combined':
-                    const combinedPhone = document.getElementById('combinedPhone').value;
-                    const name = document.getElementById('name').value;
-                    if (!combinedPhone || !name) {
-                        errorText = '請輸入手機號碼和姓名';
-                        isValid = false;
-                    } else if (!/^\d{10}$/.test(combinedPhone)) {
-                        errorText = '請輸入有效的10位手機號碼';
-                        isValid = false;
-                    } else if (!name.trim()) {
-                        errorText = '請輸入姓名';
-                        isValid = false;
-                    }
-                    queryData = { phone: combinedPhone, name };
-                    break;
-            }
-
-            if (!isValid) {
-                errorMessage.textContent = errorText;
-                errorMessage.style.display = 'block';
-                queryResult.style.display = 'none';
-                return;
-            }
-
-            errorMessage.style.display = 'none';
-            exampleSection.style.display = 'none';
-            queryResult.style.display = 'block';
             
-            setTimeout(() => {
-            // 檢查是否匹配預設資料
-            let found = false;
-            if (queryType === 'phone') {
-                found = queryData.phone === defaultAppointment.phone;
-            } else if (queryType === 'combined') {
-                found = queryData.phone === defaultAppointment.phone && 
-                       queryData.name === defaultAppointment.name;
-            }
+            // 隱藏範例區域
+            document.getElementById('exampleSection').style.display = 'none';
+            
+            const phone = document.getElementById('phone').value;
 
-            if (found) {
-                // 找到預約記錄
-                const resultHtml = `
+            // 查找預約記錄
+            let appointment = appointments.find(a => a.phone === phone);
+
+            const queryResult = document.getElementById('queryResult');
+            if (appointment) {
+                queryResult.innerHTML = `
                     <div class="appointment-card">
                         <div class="appointment-header">
-                            <span class="appointment-status status-confirmed">${defaultAppointment.status}</span>
+                            <span class="appointment-status ${appointment.status === '已確認' ? 'status-confirmed' : 'status-cancelled'}">
+                                ${appointment.status}
+                            </span>
                         </div>
                         <div class="appointment-details-simple">
                             <div class="detail-row">
                                 <div class="detail-item">
-                                    <span class="detail-label">預約日期時間</span>
-                                    <span class="detail-value">${defaultAppointment.date} ${defaultAppointment.time}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">顧客資料</span>
-                                    <span class="detail-value">${defaultAppointment.name} (${defaultAppointment.phone})</span>
+                                    <span class="detail-label">預約日期時間：</span>
+                                    <span class="detail-value">${appointment.date} ${appointment.time}</span>
                                 </div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-item">
-                                    <span class="detail-label">美甲師</span>
-                                    <span class="detail-value">${defaultAppointment.beautician}</span>
+                                    <span class="detail-label">顧客姓名：</span>
+                                    <span class="detail-value">${appointment.name}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-item">
+                                    <span class="detail-label">手機號碼：</span>
+                                    <span class="detail-value">${appointment.phone}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-item">
+                                    <span class="detail-label">美甲師：</span>
+                                    <span class="detail-value">${appointment.beautician}</span>
                                 </div>
                             </div>
                             <div class="services-summary">
-                                <span class="service-text">${defaultAppointment.service}</span>
-                                <span class="price-text">總金額：NT$${defaultAppointment.price}</span>
+                                <span class="service-text">${appointment.service}</span>
+                                <span class="price-text">總金額：NT$${appointment.price}</span>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="edit-btn" onclick="editAppointment(${appointment.id})">編輯預約</button>
+                                <button class="delete-btn" onclick="deleteAppointment(${appointment.id})">取消預約</button>
                             </div>
                         </div>
                     </div>
                 `;
-                queryResult.innerHTML = resultHtml;
-            } else {
-                // 查詢不到預約記錄
+            }
+            else {
                 queryResult.innerHTML = `
                     <div class="no-result-message">
                         <p>查詢不到預約紀錄</p>
-                        <p>請確認輸入資料是否正確</p>
+                        <p>請確認手機號碼是否正確</p>
                     </div>
                 `;
             }
-            }, 500);
-    });
+            queryResult.style.display = 'block';
+        });
+
+        // 切換查詢方式
+        document.querySelectorAll('.query-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.query-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.getElementById('phoneQueryGroup').style.display = 'none';
+                document.getElementById('combinedQueryGroup').style.display = 'none';
+                
+                if (this.dataset.queryType === 'phone') {
+                    document.getElementById('phoneQueryGroup').style.display = 'block';
+                } else {
+                    document.getElementById('combinedQueryGroup').style.display = 'block';
+                }
+            });
+        });
+
+        // 編輯預約功能
+        function editAppointment(id) {
+            const appointment = appointments.find(a => a.id === id);
+            if (!appointment) return;
+
+            // 設置日期顯示
+            document.getElementById('dateDisplay').textContent = appointment.date;
+            document.getElementById('editAppointmentId').value = id;
+
+            // 選中當前美甲師
+            document.querySelectorAll('.schedule-tab').forEach(tab => {
+                if (tab.dataset.beautician === appointment.beautician) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // 選中當前時段
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                if (slot.dataset.time === appointment.time) {
+                    slot.classList.add('selected');
+                } else {
+                    slot.classList.remove('selected');
+                }
+            });
+
+            // 選中當前服務
+            document.querySelectorAll('.service-option').forEach(option => {
+                if (option.dataset.service === appointment.service) {
+                    option.classList.add('selected');
+                    updateTotalPrice(parseInt(option.dataset.price));
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+
+            // 顯示編輯視窗
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // 更新總金額
+        function updateTotalPrice(price) {
+            document.querySelector('.total-price').textContent = `NT$${price}`;
+        }
+
+        // 刪除預約
+        function deleteAppointment(id) {
+            if (confirm('確定要取消這個預約嗎？')) {
+                const appointmentIndex = appointments.findIndex(a => a.id === id);
+                if (appointmentIndex !== -1) {
+                    appointments[appointmentIndex].status = '已取消';
+                    // 重新觸發查詢以更新顯示
+                    document.getElementById('queryForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        }
+
+        // 關閉編輯視窗
+        document.querySelector('.close-btn').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        // 點擊視窗外部關閉
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // 美甲師選擇
+        document.querySelectorAll('.schedule-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.schedule-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 時段選擇
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', function() {
+                if (!this.classList.contains('unavailable')) {
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                }
+            });
+        });
+
+        // 服務選擇
+        document.querySelectorAll('.service-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.service-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                updateTotalPrice(parseInt(this.dataset.price));
+            });
+        });
+
+        // 編輯表單提交
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editAppointmentId').value);
+            const appointment = appointments.find(a => a.id === id);
+            
+            if (appointment) {
+                const selectedBeautician = document.querySelector('.schedule-tab.active')?.dataset.beautician;
+                const selectedTime = document.querySelector('.time-slot.selected')?.dataset.time;
+                const selectedService = document.querySelector('.service-option.selected')?.dataset.service;
+                const selectedPrice = parseInt(document.querySelector('.service-option.selected')?.dataset.price || 0);
+
+                if (!selectedBeautician || !selectedTime || !selectedService) {
+                    alert('請完整選擇預約資訊');
+                    return;
+                }
+
+                // 更新預約資訊
+                appointment.beautician = selectedBeautician;
+                appointment.time = selectedTime;
+                appointment.service = selectedService;
+                appointment.price = selectedPrice;
+
+                // 關閉編輯視窗並更新顯示
+                document.getElementById('editModal').style.display = 'none';
+                document.getElementById('queryForm').dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
