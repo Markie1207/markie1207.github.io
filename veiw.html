@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美甲預約查詢系統</title>
+    <style>
+        /* 保留原本的基本樣式 */
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f2f4;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #e83e8c;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .submit-btn {
+            background-color: #e83e8c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #d6336c;
+        }
+
+        /* 新增查詢結果相關樣式 */
+        .query-result {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .appointment-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .appointment-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status-confirmed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .status-completed {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .appointment-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .services-list {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .total-price {
+            margin-top: 15px;
+            text-align: right;
+            font-weight: bold;
+            color: #e83e8c;
+            font-size: 18px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .query-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .query-tab {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .query-tab.active {
+            background-color: #e83e8c;
+            color: white;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            background-color: #e83e8c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-button:hover {
+            background-color: #d6336c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>預約紀錄查詢</h1>
+        <!-- 修改查詢方式切換部分 -->
+            <div class="query-tabs">
+            <button class="query-tab active" data-query-type="phone">手機號碼查詢</button>
+            <button class="query-tab" data-query-type="combined">手機+姓名查詢</button>
+            </div>
+
+        <!-- 修改查詢表單部分 -->
+            <form id="queryForm">
+            <!-- 手機號碼查詢 -->
+            <div class="form-group" id="phoneQueryGroup">
+                <label for="phone">手機號碼</label>
+                <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="請輸入預約時使用的手機號碼">
+            </div>
+            
+            <!-- 手機+姓名組合查詢 -->
+            <div class="form-group" id="combinedQueryGroup" style="display: none;">
+                <div class="form-group">
+                    <label for="combinedPhone">手機號碼</label>
+                    <input type="tel" id="combinedPhone" name="combinedPhone" pattern="[0-9]{10}" placeholder="請輸入預約時使用的手機號碼">
+                </div>
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" name="name" placeholder="請輸入預約時使用的姓名">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">查詢預約</button>
+        </form>
+
+        <!-- 更新 JavaScript 部分 -->
+        <script>
+            // 切換查詢方式
+            document.querySelectorAll('.query-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 更新標籤狀態
+                    document.querySelectorAll('.query-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // 隱藏所有查詢組
+                    document.getElementById('phoneQueryGroup').style.display = 'none';
+                    document.getElementById('combinedQueryGroup').style.display = 'none';
+
+                    // 根據選擇顯示對應的查詢表單
+                    const queryType = this.dataset.queryType;
+                    switch(queryType) {
+                        case 'phone':
+                            document.getElementById('phoneQueryGroup').style.display = 'block';
+                            break;
+                        case 'combined':
+                            document.getElementById('combinedQueryGroup').style.display = 'block';
+                            break;
+                    }
+
+                    // 重置表單和錯誤訊息
+                    document.getElementById('queryForm').reset();
+                    document.getElementById('errorMessage').style.display = 'none';
+                    document.getElementById('queryResult').style.display = 'none';
+                });
+            });
+
+            // 表單提交處理
+            document.getElementById('queryForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const errorMessage = document.getElementById('errorMessage');
+                const queryResult = document.getElementById('queryResult');
+
+                // 獲取當前查詢方式
+                const activeTab = document.querySelector('.query-tab.active');
+                const queryType = activeTab.dataset.queryType;
+
+                // 根據查詢類型驗證和處理
+                let isValid = true;
+                let errorText = '';
+                let queryData = {};
+
+                switch(queryType) {
+                    case 'phone':
+                        const phone = document.getElementById('phone').value;
+                        if (!phone) {
+                            errorText = '請輸入手機號碼';
+                            isValid = false;
+                        } else if (!/^\d{10}$/.test(phone)) {
+                            errorText = '請輸入有效的10位手機號碼';
+                            isValid = false;
+                        }
+                        queryData = { phone };
+                        break;
+
+                    case 'combined':
+                        const combinedPhone = document.getElementById('combinedPhone').value;
+                        const name = document.getElementById('name').value;
+                        if (!combinedPhone || !name) {
+                            errorText = '請輸入手機號碼和姓名';
+                            isValid = false;
+                        } else if (!/^\d{10}$/.test(combinedPhone)) {
+                            errorText = '請輸入有效的10位手機號碼';
+                            isValid = false;
+                        } else if (!name.trim()) {
+                            errorText = '請輸入姓名';
+                            isValid = false;
+                        }
+                        queryData = { phone: combinedPhone, name };
+                        break;
+                }
+
+                if (!isValid) {
+                    errorMessage.textContent = errorText;
+                    errorMessage.style.display = 'block';
+                    queryResult.style.display = 'none';
+                    return;
+                }
+
+                // 清除錯誤訊息
+                errorMessage.style.display = 'none';
+
+                // 模擬查詢處理
+                console.log('查詢類型:', queryType);
+                console.log('查詢數據:', queryData);
+
+                // 顯示查詢結果（模擬數據）
+                queryResult.style.display = 'block';
+                
+                // 模擬 API 請求延遲
+                setTimeout(() => {
+                    // 這裡可以添加實際的 API 請求處理
+                    // 顯示模擬的預約記錄
+                    const mockAppointment = {
+                        appointmentId: 'AP' + Date.now(),
+                        status: '已確認',
+                        date: '2025/03/15',
+                        time: '14:00',
+                        customerName: queryType === 'combined' ? queryData.name : '王小明',
+                        phone: queryData.phone,
+                        beautician: '美甲師A',
+                        services: [
+                            { name: '基礎美甲', price: 800 },
+                            { name: '凝膠美甲', price: 1200 }
+                        ],
+                        totalPrice: 2000
+                    };
+
+                    // 更新查詢結果顯示
+                    updateQueryResult(mockAppointment);
+                }, 500);
+            });
+
+            // 更新查詢結果顯示
+            function updateQueryResult(appointment) {
+                const resultHtml = `
+                    <div class="appointment-card">
+                        <div class="appointment-header">
+                            <h3>預約編號：${appointment.appointmentId}</h3>
+                            <span class="appointment-status status-confirmed">${appointment.status}</span>
+                        </div>
+                        <div class="appointment-details">
+                            <div class="detail-item">
+                                <span class="detail-label">預約日期</span>
+                                <span class="detail-value">${appointment.date}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">預約時間</span>
+                                <span class="detail-value">${appointment.time}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">顧客姓名</span>
+                                <span class="detail-value">${appointment.customerName}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">手機號碼</span>
+                                <span class="detail-value">${appointment.phone}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">美甲師</span>
+                                <span class="detail-value">${appointment.beautician}</span>
+                            </div>
+                        </div>
+                        <div class="services-list">
+                            <h4>預約項目</h4>
+                            ${appointment.services.map(service => `
+                                <div class="service-item">
+                                    <span>${service.name}</span>
+                                    <span>NT$${service.price}</span>
+                                </div>
+                            `).join('')}
+                            <div class="total-price">
+                                總金額：NT$${appointment.totalPrice}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('queryResult').innerHTML = resultHtml;
+            }
+        </script>
+</body>
+</html>
