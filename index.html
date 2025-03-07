@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美甲預約系統</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f2f4;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #e83e8c;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .time-slots-container {
+            margin-top: 15px;
+            display: none; /* 初始隱藏，選擇日期後顯示 */
+        }
+        
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .time-slot {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .time-slot:hover {
+            background-color: #e9ecef;
+        }
+        
+        .time-slot.selected {
+            background-color: #e83e8c;
+            color: white;
+            border-color: #e83e8c;
+        }
+        
+        .time-slot.unavailable {
+            background-color: #f1f1f1;
+            color: #999;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .service-option {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .service-option:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .service-option.selected {
+            border-color: #e83e8c;
+            background-color: #fef0f5;
+        }
+        
+        .service-option input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .service-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        
+        .service-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .service-price {
+            color: #e83e8c;
+            font-weight: bold;
+        }
+        
+        .file-upload {
+            margin-top: 10px;
+        }
+        
+        .file-upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #e83e8c;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .file-upload-btn:hover {
+            background-color: #d6336c;
+        }
+        
+        .submit-btn {
+            background-color: #e83e8c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #d6336c;
+        }
+        
+        .preview-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        #imagePreview {
+            max-width: 100%;
+            max-height: 200px;
+            display: none;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        
+        .date-picker {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .date-input-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 0;
+            background-color: #fff;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .date-input-container:hover {
+            border-color: #e83e8c;
+        }
+        
+        .date-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .date-icon {
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-left: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .date-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* 確保日期選擇器在點擊時顯示 */
+        .date-input::-webkit-calendar-picker-indicator {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .date-picker {
+            margin-bottom: 15px;
+        }
+        
+        .selected-date-display {
+            font-weight: bold;
+            color: #e83e8c;
+            margin: 10px 0;
+        }
+        
+        .time-slot-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .beautician-schedule {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .beautician-schedule.active {
+            display: block;
+        }
+        
+        .schedule-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .schedule-tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .schedule-tab:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .schedule-tab.active {
+            background-color: #e83e8c;
+            border-color: #e83e8c;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .beautician-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .schedule-tab.active .beautician-avatar {
+            background-color: white;
+            color: #e83e8c;
+        }
+        
+        .total-price-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: right;
+        }
+        
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e83e8c;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .appointment-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .summary-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #e83e8c;
+        }
+        
+        .summary-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            width: 100px;
+            font-weight: bold;
+        }
+        
+        .beautician-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+    </style>
+  </head>
+<body>
+    <div class="container">
+        <h1>美甲預約表單</h1>
+        
+        <form id="nailAppointmentForm">
+            <!-- 1. 姓名 -->
+            <div class="form-group">
+                <label for="name">姓名 <span style="color: red;">*</span></label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <!-- 聯絡資訊 -->
+            <div class="form-group">
+                <label for="phone">手機號碼 <span style="color: red;">*</span></label>
+                <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="請輸入10位數手機號碼" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="line">LINE ID</label>
+                <input type="text" id="line" name="line" placeholder="用於預約確認和提醒">
+            </div>
+            
+            <!-- 2 & 3. 整合美甲師選擇與預約日期時段 -->
+            <div class="form-group">
+                <label>預約日期及美甲師 <span style="color: red;">*</span></label>
+                <div class="date-time-container">
+                    <!-- 將原本的 date-time-container 部分替換成以下代碼 -->
+<div class="date-time-container">
+    <div class="date-picker">
+        <label for="appointmentDate">選擇日期:</label>
+        <div class="date-input-wrapper">
+            <input type="text" id="dateDisplay" readonly placeholder="請選擇日期">
+            <input type="date" 
+                   id="appointmentDate" 
+                   name="appointmentDate" 
+                   required 
+                   min=""
+                   class="date-picker-input">
+        </div>
+    </div>
+</div>
+
+<!-- 在 style 標籤中添加或更新以下 CSS -->
+<style>
+    /* 更新 date-picker 相關樣式 */
+    .date-picker {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .date-input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    #dateDisplay {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        background-color: #fff;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+    #dateDisplay:hover {
+        border-color: #000000;
+    }
+
+    .date-picker-input {
+        position: absolute;
+        left: 0;
+        top: 100%;
+        width: 100%;
+        height: 40px;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 1;
+    }
+
+    /* 當日期選擇器被點擊時的樣式 */
+    .date-picker-input:focus + #dateDisplay {
+        border-color: #e83e8c;
+        box-shadow: 0 0 0 2px rgba(232, 62, 140, 0.2);
+    }
+</style>
+
+<!-- 更新 JavaScript 部分，在 script 標籤中添加或更新以下代碼 -->
+<script>
+    // 設置最小日期為今天
+    function setMinDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const minDate = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('appointmentDate').min = minDate;
+    }
+
+    // 頁面加載時設置最小日期
+    window.addEventListener('load', setMinDate);
+
+    // 更新日期顯示格式的處理函數
+    document.getElementById('appointmentDate').addEventListener('change', function() {
+        const selectedDate = this.value;
+        if (selectedDate) {
+            // 格式化日期顯示
+            const dateObj = new Date(selectedDate);
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const formattedDate = `${year}/${month}/${day}`;
+            
+            // 更新顯示的日期
+            document.getElementById('dateDisplay').value = formattedDate;
+            
+            // 更新預約摘要中的日期顯示
+            const formattedDateLong = dateObj.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
+            document.getElementById('summaryDate').textContent = formattedDateLong;
+            
+            // 顯示時段選擇區域
+            document.getElementById('timeSlotsContainer').style.display = 'block';
+        } else {
+            document.getElementById('dateDisplay').value = '';
+            document.getElementById('timeSlotsContainer').style.display = 'none';
+        }
+    });
+
+    // 點擊顯示框時觸發日期選擇
+    document.getElementById('dateDisplay').addEventListener('click', function() {
+        document.getElementById('appointmentDate').showPicker();
+    });
+</script>
+                    
+                    <div id="timeSlotsContainer" class="time-slots-container">
+                        <div class="selected-date-display">
+                            您選擇的日期: <span id="selectedDateDisplay"></span>
+                        </div>
+                        
+                        <div class="time-slot-title">
+                            <span>選擇美甲師及時段</span>
+                            <small>點擊美甲師查看可預約時段</small>
+                        </div>
+                        
+                        <div class="schedule-tabs">
+                            <div class="schedule-tab" data-beautician="美甲師A">
+                                <div class="beautician-avatar">A</div>
+                                <span>美甲師A</span>
+                            </div>
+                            <div class="schedule-tab" data-beautician="美甲師B">
+                                <div class="beautician-avatar">B</div>
+                                <span>美甲師B</span>
+                            </div>
+                            <div class="schedule-tab" data-beautician="美甲師C">
+                                <div class="beautician-avatar">C</div>
+                                <span>美甲師C</span>
+                            </div>
+                        </div>
+                        
+                        <div class="beautician-schedule" id="schedule-美甲師A">
+                            <div class="beautician-info">
+                                <div class="beautician-avatar">A</div>
+                                <div>美甲師A 可預約時段</div>
+                            </div>
+                            <div class="time-slots" id="timeSlots-美甲師A">
+                                <div class="time-slot" data-time="10:00" data-beautician="美甲師A">10:00</div>
+                                <div class="time-slot" data-time="11:00" data-beautician="美甲師A">11:00</div>
+                                <div class="time-slot unavailable" data-time="12:00" data-beautician="美甲師A">12:00</div>
+                                <div class="time-slot" data-time="13:00" data-beautician="美甲師A">13:00</div>
+                                <div class="time-slot" data-time="14:00" data-beautician="美甲師A">14:00</div>
+                                <div class="time-slot" data-time="15:00" data-beautician="美甲師A">15:00</div>
+                                <div class="time-slot unavailable" data-time="16:00" data-beautician="美甲師A">16:00</div>
+                                <div class="time-slot" data-time="17:00" data-beautician="美甲師A">17:00</div>
+                                <div class="time-slot" data-time="18:00" data-beautician="美甲師A">18:00</div>
+                                <div class="time-slot" data-time="19:00" data-beautician="美甲師A">19:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="beautician-schedule" id="schedule-美甲師B">
+                            <div class="beautician-info">
+                                <div class="beautician-avatar">B</div>
+                                <div>美甲師B 可預約時段</div>
+                            </div>
+                            <div class="time-slots" id="timeSlots-美甲師B">
+                                <div class="time-slot" data-time="10:00" data-beautician="美甲師B">10:00</div>
+                                <div class="time-slot unavailable" data-time="11:00" data-beautician="美甲師B">11:00</div>
+                                <div class="time-slot" data-time="12:00" data-beautician="美甲師B">12:00</div>
+                                <div class="time-slot" data-time="13:00" data-beautician="美甲師B">13:00</div>
+                                <div class="time-slot unavailable" data-time="14:00" data-beautician="美甲師B">14:00</div>
+                                <div class="time-slot" data-time="15:00" data-beautician="美甲師B">15:00</div>
+                                <div class="time-slot" data-time="16:00" data-beautician="美甲師B">16:00</div>
+                                <div class="time-slot" data-time="17:00" data-beautician="美甲師B">17:00</div>
+                                <div class="time-slot unavailable" data-time="18:00" data-beautician="美甲師B">18:00</div>
+                                <div class="time-slot" data-time="19:00" data-beautician="美甲師B">19:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="beautician-schedule" id="schedule-美甲師C">
+                            <div class="beautician-info">
+                                <div class="beautician-avatar">C</div>
+                                <div>美甲師C 可預約時段</div>
+                            </div>
+                            <div class="time-slots" id="timeSlots-美甲師C">
+                                <div class="time-slot unavailable" data-time="10:00" data-beautician="美甲師C">10:00</div>
+                                <div class="time-slot" data-time="11:00" data-beautician="美甲師C">11:00</div>
+                                <div class="time-slot" data-time="12:00" data-beautician="美甲師C">12:00</div>
+                                <div class="time-slot unavailable" data-time="13:00" data-beautician="美甲師C">13:00</div>
+                                <div class="time-slot" data-time="14:00" data-beautician="美甲師C">14:00</div>
+                                <div class="time-slot unavailable" data-time="15:00" data-beautician="美甲師C">15:00</div>
+                                <div class="time-slot" data-time="16:00" data-beautician="美甲師C">16:00</div>
+                                <div class="time-slot" data-time="17:00" data-beautician="美甲師C">17:00</div>
+                                <div class="time-slot" data-time="18:00" data-beautician="美甲師C">18:00</div>
+                                <div class="time-slot unavailable" data-time="19:00" data-beautician="美甲師C">19:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="appointment-summary" id="appointmentSummary">
+                            <div class="summary-title">您的預約信息</div>
+                            <div class="summary-item">
+                                <div class="summary-label">預約日期:</div>
+                                <div id="summaryDate"></div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">美甲師:</div>
+                                <div id="summaryBeautician"></div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">時段:</div>
+                                <div id="summaryTime"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="appointmentTime" name="appointmentTime" required>
+                    <input type="hidden" id="appointmentBeautician" name="appointmentBeautician" required>
+                </div>
+            </div>
+            
+            <!-- 4. 選擇課程項目 (勾選式) -->
+            <div class="form-group">
+                <label>選擇課程項目 <span style="color: red;">*</span></label>
+                <div id="serviceError" class="error-message">請至少選擇一項服務</div>
+                <div class="service-options">
+                    <div class="service-option" data-price="800">
+                        <label>
+                            <input type="checkbox" name="service" value="基礎美甲" data-price="800">
+                            <div>
+                                <div class="service-name">基礎美甲</div>
+                                <div class="service-price">NT$800</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="service-option" data-price="1200">
+                        <label>
+                            <input type="checkbox" name="service" value="凝膠美甲" data-price="1200">
+                            <div>
+                                <div class="service-name">凝膠美甲</div>
+                                <div class="service-price">NT$1200</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="service-option" data-price="1500">
+                        <label>
+                            <input type="checkbox" name="service" value="藝術美甲" data-price="1500">
+                            <div>
+                                <div class="service-name">藝術美甲</div>
+                                <div class="service-price">NT$1500</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="service-option" data-price="1800">
+                        <label>
+                            <input type="checkbox" name="service" value="指甲延長" data-price="1800">
+                            <div>
+                                <div class="service-name">指甲延長</div>
+                                <div class="service-price">NT$1800</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="service-option" data-price="500">
+                        <label>
+                            <input type="checkbox" name="service" value="凝膠卸除" data-price="500">
+                            <div>
+                                <div class="service-name">凝膠卸除</div>
+                                <div class="service-price">NT$500</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="service-option" data-price="1600">
+                        <label>
+                            <input type="checkbox" name="service" value="卸除+新做" data-price="1600">
+                            <div>
+                                <div class="service-name">卸除+新做</div>
+                                <div class="service-price">NT$1600</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="total-price-container">
+                    總金額: <span class="total-price">NT$0</span>
+                </div>
+            </div>
+            
+            <!-- 5. 上傳想設計的圖片 -->
+            <div class="form-group">
+                <label for="designImage">上傳您想設計的圖片</label>
+                <div class="file-upload">
+                    <input type="file" id="designImage" name="designImage" accept="image/*" onchange="previewImage(event)">
+                    <label for="designImage" class="file-upload-btn">選擇圖片</label>
+                </div>
+                <div class="preview-container">
+                    <img id="imagePreview" src="#" alt="預覽圖片">
+                </div>
+            </div>
+            
+            <!-- 備註 -->
+            <div class="form-group">
+                <label for="notes">備註</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="請填寫任何特殊需求或注意事項"></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">提交預約</button>
+        </form>
+    </div>
+
+    <script>
+        // 日期選擇後顯示時段
+        document.getElementById('appointmentDate').addEventListener('change', function() {
+            const selectedDate = this.value;
+            if (selectedDate) {
+                // 格式化日期顯示
+                const dateObj = new Date(selectedDate);
+                const formattedDate = dateObj.toLocaleDateString('zh-TW', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+                
+                document.getElementById('selectedDateDisplay').textContent = formattedDate;
+                document.getElementById('timeSlotsContainer').style.display = 'block';
+                document.getElementById('summaryDate').textContent = formattedDate;
+                
+                // 重置美甲師和時段選擇
+                document.querySelectorAll('.schedule-tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.beautician-schedule').forEach(schedule => schedule.style.display = 'none');
+                document.getElementById('appointmentBeautician').value = '';
+                document.getElementById('appointmentTime').value = '';
+                document.getElementById('appointmentSummary').style.display = 'none';
+            } else {
+                document.getElementById('timeSlotsContainer').style.display = 'none';
+            }
+        });
+        
+        // 美甲師標籤點擊
+        document.querySelectorAll('.schedule-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有標籤的活躍狀態
+                document.querySelectorAll('.schedule-tab').forEach(t => t.classList.remove('active'));
+                
+                // 設置當前標籤為活躍
+                this.classList.add('active');
+                
+                // 隱藏所有美甲師時段
+                document.querySelectorAll('.beautician-schedule').forEach(schedule => {
+                    schedule.style.display = 'none';
+                });
+                
+                // 顯示當前美甲師時段
+                const beauticianId = this.dataset.beautician;
+                document.getElementById(`schedule-${beauticianId}`).style.display = 'block';
+                
+                // 更新隱藏欄位
+                document.getElementById('appointmentBeautician').value = beauticianId;
+                document.getElementById('summaryBeautician').textContent = beauticianId;
+                
+                // 如果已經選擇了時段，更新預約摘要
+                if (document.getElementById('appointmentTime').value) {
+                    document.getElementById('appointmentSummary').style.display = 'block';
+                }
+            });
+        });
+        
+        // 時段選擇功能
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            if (!slot.classList.contains('unavailable')) {
+                slot.addEventListener('click', function() {
+                    // 移除所有時段的選中狀態
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    
+                    // 設置當前時段為選中
+                    this.classList.add('selected');
+                    
+                    // 更新隱藏欄位
+                    document.getElementById('appointmentTime').value = this.dataset.time;
+                    document.getElementById('appointmentBeautician').value = this.dataset.beautician;
+                    
+                    // 更新預約摘要
+                    document.getElementById('summaryTime').textContent = this.dataset.time;
+                    document.getElementById('summaryBeautician').textContent = this.dataset.beautician;
+                    document.getElementById('appointmentSummary').style.display = 'block';
+                    
+                    // 確保對應的美甲師標籤被選中
+                    document.querySelectorAll('.schedule-tab').forEach(tab => {
+                        if (tab.dataset.beautician === this.dataset.beautician) {
+                            tab.classList.add('active');
+                        } else {
+                            tab.classList.remove('active');
+                        }
+                    });
+                });
+            }
+        });
+        
+        // 服務選項點擊處理
+        document.querySelectorAll('.service-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                // 如果點擊的不是 checkbox 本身，則模擬點擊 checkbox
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                }
+                
+                // 更新選中狀態的視覺效果
+                if (this.querySelector('input[type="checkbox"]').checked) {
+                    this.classList.add('selected');
+                } else {
+                    this.classList.remove('selected');
+                }
+                
+                // 更新總金額
+                updateTotalPrice();
+            });
+        });
+        
+        // 更新總金額
+        function updateTotalPrice() {
+            let total = 0;
+            document.querySelectorAll('input[name="service"]:checked').forEach(checkbox => {
+                total += parseInt(checkbox.dataset.price);
+            });
+            document.querySelector('.total-price').textContent = `NT$${total}`;
+        }
+        
+        // 圖片預覽功能
+        function previewImage(event) {
+            const preview = document.getElementById('imagePreview');
+            preview.src = URL.createObjectURL(event.target.files[0]);
+            preview.style.display = 'block';
+        }
+        
+        // 表單提交處理
+        document.getElementById('nailAppointmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 驗證是否選擇了美甲師和時段
+            if (!document.getElementById('appointmentBeautician').value || !document.getElementById('appointmentTime').value) {
+                alert('請選擇美甲師和預約時段！');
+                return;
+            }
+            
+            // 驗證是否選擇了至少一項服務
+            const selectedServices = document.querySelectorAll('input[name="service"]:checked');
+            if (selectedServices.length === 0) {
+                document.getElementById('serviceError').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('serviceError').style.display = 'none';
+            }
+            
+            // 獲取所有表單數據
+            const formData = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                line: document.getElementById('line').value,
+                beautician: document.getElementById('appointmentBeautician').value,
+                date: document.getElementById('appointmentDate').value,
+                time: document.getElementById('appointmentTime').value,
+                services: Array.from(selectedServices).map(service => service.value),
+                totalPrice: document.querySelector('.total-price').textContent,
+                notes: document.getElementById('notes').value
+            };
+            
+            console.log('預約資料:', formData);
+            alert('預約已提交！我們會盡快與您聯繫確認。');
+            
+            // 實際應用中，這裡應該有更完善的處理邏輯，例如 AJAX 提交到後端
+        });
+        
+        // 初始化 - 隱藏時段選擇區域
+        document.getElementById('timeSlotsContainer').style.display = 'none';
+    </script>
+</body>
+</html>
