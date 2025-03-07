@@ -168,7 +168,6 @@
             color: white;
         }
 
-        /* 範例區域樣式 */
         .example-section {
             margin: 20px 0;
             padding-top: 15px;
@@ -229,27 +228,41 @@
             color: #e83e8c;
             font-weight: bold;
         }
+        .no-result-message {
+            text-align: center;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .no-result-message p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+
+        .no-result-message p:first-child {
+            font-size: 1.2em;
+            color: #e83e8c;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>預約紀錄查詢</h1>
 
-        <!-- 查詢方式切換 -->
         <div class="query-tabs">
             <button class="query-tab active" data-query-type="phone">手機號碼查詢</button>
             <button class="query-tab" data-query-type="combined">手機+姓名查詢</button>
         </div>
         
-        <!-- 查詢表單 -->
         <form id="queryForm">
-            <!-- 手機號碼查詢 -->
             <div class="form-group" id="phoneQueryGroup">
                 <label for="phone">手機號碼</label>
                 <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" placeholder="請輸入預約時使用的手機號碼">
             </div>
             
-            <!-- 手機+姓名組合查詢 -->
             <div class="form-group" id="combinedQueryGroup" style="display: none;">
                 <div class="form-group">
                     <label for="combinedPhone">手機號碼</label>
@@ -266,50 +279,50 @@
 
         <div id="errorMessage" class="error-message"></div>
 
-        <!-- 查詢結果區域 -->
         <div id="queryResult" class="query-result">
         </div>
 
-        <!-- 範例區域 -->
-        <div class="example-section">
-            <h2 class="example-title">查詢結果範例</h2>
-            <div class="appointment-card example-card">
-                <div class="appointment-header">
-                    <span class="appointment-status status-confirmed">已確認</span>
+<!-- 修改範例區域的顯示 -->
+<div class="example-section">
+    <h2 class="example-title">查詢結果範例</h2>
+    <div class="appointment-card example-card">
+        <div class="appointment-header">
+            <span class="appointment-status status-confirmed">已確認</span>
+        </div>
+        <div class="appointment-details-simple">
+            <div class="detail-row">
+                <div class="detail-item">
+                    <span class="detail-label">預約日期時間</span>
+                    <span class="detail-value">2025/03/15 14:00</span>
                 </div>
-                <div class="appointment-details-simple">
-                    <div class="detail-row">
-                        <div class="detail-item">
-                            <span class="detail-label">預約日期時間</span>
-                            <span class="detail-value">2025/03/15 14:00</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">顧客資料</span>
-                            <span class="detail-value">王小明 (0912345678)</span>
-                        </div>
-                    </div>
-                    <div class="services-summary">
-                        <span class="service-text">基礎美甲, 凝膠美甲</span>
-                        <span class="price-text">總金額：NT$2,000</span>
-                    </div>
+                <div class="detail-item">
+                    <span class="detail-label">顧客資料</span>
+                    <span class="detail-value">王小明 (0912345678)</span>
                 </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <span class="detail-label">美甲師</span>
+                    <span class="detail-value">美甲師A</span>
+                </div>
+            </div>
+            <div class="services-summary">
+                <span class="service-text">基礎美甲, 凝膠美甲</span>
+                <span class="price-text">總金額：NT$2,000</span>
             </div>
         </div>
     </div>
+</div>
 
     <script>
-        // 切換查詢方式
         document.querySelectorAll('.query-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                // 更新標籤狀態
                 document.querySelectorAll('.query-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
 
-                // 隱藏所有查詢組
                 document.getElementById('phoneQueryGroup').style.display = 'none';
                 document.getElementById('combinedQueryGroup').style.display = 'none';
 
-                // 根據選擇顯示對應的查詢表單
                 const queryType = this.dataset.queryType;
                 switch(queryType) {
                     case 'phone':
@@ -320,24 +333,34 @@
                         break;
                 }
 
-                // 重置表單和錯誤訊息
                 document.getElementById('queryForm').reset();
                 document.getElementById('errorMessage').style.display = 'none';
                 document.getElementById('queryResult').style.display = 'none';
+                document.querySelector('.example-section').style.display = 'block';
             });
         });
 
-        // 表單提交處理
+        // 模擬資料庫中的預約記錄
+            const defaultAppointment = {
+                    name: '彭方筠',
+                    phone: '0987720962',
+                    date: '2025/03/28',
+                    time: '14:00',
+                    beautician: '美甲師A',
+                    service: '基礎美甲',
+                    status: '已確認',
+                    price: 800
+                }
+
         document.getElementById('queryForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const errorMessage = document.getElementById('errorMessage');
             const queryResult = document.getElementById('queryResult');
+            const exampleSection = document.querySelector('.example-section');
 
-            // 獲取當前查詢方式
             const activeTab = document.querySelector('.query-tab.active');
             const queryType = activeTab.dataset.queryType;
 
-            // 根據查詢類型驗證和處理
             let isValid = true;
             let errorText = '';
             let queryData = {};
@@ -379,42 +402,63 @@
                 return;
             }
 
-            // 清除錯誤訊息
             errorMessage.style.display = 'none';
-
-            // 顯示查詢結果（模擬數據）
+            exampleSection.style.display = 'none';
             queryResult.style.display = 'block';
             
-            // 模擬 API 請求延遲
             setTimeout(() => {
-                // 生成查詢結果 HTML
+            // 檢查是否匹配預設資料
+            let found = false;
+            if (queryType === 'phone') {
+                found = queryData.phone === defaultAppointment.phone;
+            } else if (queryType === 'combined') {
+                found = queryData.phone === defaultAppointment.phone && 
+                       queryData.name === defaultAppointment.name;
+            }
+
+            if (found) {
+                // 找到預約記錄
                 const resultHtml = `
                     <div class="appointment-card">
                         <div class="appointment-header">
-                            <span class="appointment-status status-confirmed">已確認</span>
+                            <span class="appointment-status status-confirmed">${defaultAppointment.status}</span>
                         </div>
                         <div class="appointment-details-simple">
                             <div class="detail-row">
                                 <div class="detail-item">
                                     <span class="detail-label">預約日期時間</span>
-                                    <span class="detail-value">2025/03/15 14:00</span>
+                                    <span class="detail-value">${defaultAppointment.date} ${defaultAppointment.time}</span>
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">顧客資料</span>
-                                    <span class="detail-value">${queryType === 'combined' ? queryData.name : '王小明'} (${queryData.phone})</span>
+                                    <span class="detail-value">${defaultAppointment.name} (${defaultAppointment.phone})</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-item">
+                                    <span class="detail-label">美甲師</span>
+                                    <span class="detail-value">${defaultAppointment.beautician}</span>
                                 </div>
                             </div>
                             <div class="services-summary">
-                                <span class="service-text">基礎美甲, 凝膠美甲</span>
-                                <span class="price-text">總金額：NT$2,000</span>
+                                <span class="service-text">${defaultAppointment.service}</span>
+                                <span class="price-text">總金額：NT$${defaultAppointment.price}</span>
                             </div>
                         </div>
                     </div>
                 `;
-
                 queryResult.innerHTML = resultHtml;
+            } else {
+                // 查詢不到預約記錄
+                queryResult.innerHTML = `
+                    <div class="no-result-message">
+                        <p>查詢不到預約紀錄</p>
+                        <p>請確認輸入資料是否正確</p>
+                    </div>
+                `;
+            }
             }, 500);
-        });
+    });
     </script>
 </body>
 </html>
