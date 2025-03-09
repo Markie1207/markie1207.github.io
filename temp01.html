@@ -49,7 +49,7 @@
         
         .time-slots-container {
             margin-top: 15px;
-            display: none; /* 初始隱藏，選擇日期後顯示 */
+            display: block; /* 預設顯示 */
         }
         
         .time-slots {
@@ -83,6 +83,13 @@
             color: #999;
             cursor: not-allowed;
             text-decoration: line-through;
+        }
+        
+        .time-slot.reserved {
+            background-color: #ffd6e7;
+            color: #e83e8c;
+            border-color: #e83e8c;
+            font-weight: bold;
         }
         
         .service-options {
@@ -474,6 +481,40 @@
             border-color: #e83e8c;
             box-shadow: 0 0 0 2px rgba(232, 62, 140, 0.2);
         }
+        
+        .time-range-display {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fef0f5;
+            border-radius: 5px;
+            border: 1px solid #e83e8c;
+            color: #e83e8c;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .combined-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .left-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .right-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        @media (max-width: 768px) {
+            .combined-section {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -598,74 +639,81 @@
                 </div>
             </div>
             
-            <!-- 步驟3: 選擇日期和時間 -->
+            <!-- 步驟3: 選擇美甲師和預約時間 (整合步驟3和4) -->
             <div id="step3" class="step-container" style="display: none;">
-                <div class="step-title"><span class="step-number">3</span>選擇日期和時間</div>
+                <div class="step-title"><span class="step-number">3</span>選擇美甲師與預約時間</div>
+                
+                <div class="combined-section">
+                    <div class="left-section">
+                        <div class="form-group">
+                            <label>選擇美甲師 <span style="color: red;">*</span></label>
+                            <div class="schedule-tabs">
+                                <div class="schedule-tab" data-beautician="美甲師A">
+                                    <div class="beautician-avatar">A</div>
+                                    <span>美甲師A</span>
+                                </div>
+                                <div class="schedule-tab" data-beautician="美甲師B">
+                                    <div class="beautician-avatar">B</div>
+                                    <span>美甲師B</span>
+                                </div>
+                                <div class="schedule-tab" data-beautician="美甲師C">
+                                    <div class="beautician-avatar">C</div>
+                                    <span>美甲師C</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="appointmentBeautician" name="appointmentBeautician" required>
+                        </div>
+                    </div>
+                    
+                    <div class="right-section">
+                        <div class="form-group">
+                            <div class="date-time-container">
+                                <div class="date-picker">
+                                    <label for="appointmentDate">選擇日期:</label>
+                                    <div class="date-input-wrapper">
+                                        <input type="text" id="dateDisplay" readonly placeholder="請選擇日期">
+                                        <input type="date" 
+                                               id="appointmentDate" 
+                                               name="appointmentDate" 
+                                               required 
+                                               min=""
+                                               class="date-picker-input">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="form-group">
-                    <div class="date-time-container">
-                        <div class="date-picker">
-                            <label for="appointmentDate">選擇日期:</label>
-                            <div class="date-input-wrapper">
-                                <input type="text" id="dateDisplay" readonly placeholder="請選擇日期">
-                                <input type="date" 
-                                       id="appointmentDate" 
-                                       name="appointmentDate" 
-                                       required 
-                                       min=""
-                                       class="date-picker-input">
-                            </div>
+                    <div id="timeSlotsContainer" class="time-slots-container">
+                        <div class="selected-date-display" style="display: none;">
+                            您選擇的日期: <span id="selectedDateDisplay"></span>
                         </div>
                         
-                        <div id="timeSlotsContainer" class="time-slots-container">
-                            <div class="selected-date-display">
-                                您選擇的日期: <span id="selectedDateDisplay"></span>
-                            </div>
-                            
-                            <div class="time-slot-title">
-                                <span>選擇時段</span>
-                                <small>根據您選擇的服務總時長 (<span id="requiredDuration">0</span> 分鐘)</small>
-                            </div>
-                            
-                            <div class="time-slots" id="availableTimeSlots">
-                                <!-- 時段會根據選擇的日期和服務時長動態生成 -->
-                            </div>
+                        <div class="time-slot-title">
+                            <span>選擇時段</span>
+                            <small>根據您選擇的服務總時長 (<span id="requiredDuration">0</span> 分鐘)</small>
                         </div>
-                        <input type="hidden" id="appointmentTime" name="appointmentTime" required>
-                    </div>
-                </div>
-                
-                <div class="clearfix">
-                    <button type="button" class="prev-step-btn" id="backToStep2">上一步</button>
-                    <button type="button" class="next-step-btn" id="toStep4">下一步</button>
-                </div>
-            </div>
-            
-            <!-- 步驟4: 選擇美甲師 -->
-            <div id="step4" class="step-container" style="display: none;">
-                <div class="step-title"><span class="step-number">4</span>選擇美甲師</div>
-                
-                <div class="form-group">
-                    <label>選擇美甲師 <span style="color: red;">*</span></label>
-                    <div class="schedule-tabs">
-                        <div class="schedule-tab" data-beautician="美甲師A">
-                            <div class="beautician-avatar">A</div>
-                            <span>美甲師A</span>
+                        
+                        <div class="time-slots" id="availableTimeSlots">
+                            <!-- 時段會根據選擇的日期和服務時長動態生成 -->
                         </div>
-                        <div class="schedule-tab" data-beautician="美甲師B">
-                            <div class="beautician-avatar">B</div>
-                            <span>美甲師B</span>
-                        </div>
-                        <div class="schedule-tab" data-beautician="美甲師C">
-                            <div class="beautician-avatar">C</div>
-                            <span>美甲師C</span>
+                        
+                        <div id="timeRangeDisplay" class="time-range-display" style="display: none;">
+                            您的預約時段: <span id="appointmentTimeRange"></span>
                         </div>
                     </div>
-                    <input type="hidden" id="appointmentBeautician" name="appointmentBeautician" required>
+                    <input type="hidden" id="appointmentTime" name="appointmentTime" required>
+                    <input type="hidden" id="appointmentEndTime" name="appointmentEndTime">
                 </div>
                 
                 <div class="appointment-summary" id="appointmentSummary">
                     <div class="summary-title">您的預約信息</div>
+                    <div class="summary-item">
+                        <div class="summary-label">美甲師:</div>
+                        <div id="summaryBeautician"></div>
+                    </div>
                     <div class="summary-item">
                         <div class="summary-label">預約日期:</div>
                         <div id="summaryDate"></div>
@@ -673,10 +721,6 @@
                     <div class="summary-item">
                         <div class="summary-label">時段:</div>
                         <div id="summaryTime"></div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">美甲師:</div>
-                        <div id="summaryBeautician"></div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-label">服務項目:</div>
@@ -698,7 +742,7 @@
                 </div>
                 
                 <div class="clearfix">
-                    <button type="button" class="prev-step-btn" id="backToStep3">上一步</button>
+                    <button type="button" class="prev-step-btn" id="backToStep2">上一步</button>
                     <button type="submit" class="submit-btn">提交預約</button>
                 </div>
             </div>
@@ -716,8 +760,17 @@
             document.getElementById('appointmentDate').min = minDate;
         }
 
-        // 頁面加載時設置最小日期
-        window.addEventListener('load', setMinDate);
+        // 頁面加載時設置最小日期並生成默認時段
+        window.addEventListener('load', function() {
+            setMinDate();
+            
+            // 更新所需時長顯示
+            const totalDuration = calculateTotalDuration();
+            document.getElementById('requiredDuration').textContent = totalDuration;
+            
+            // 生成默認時段
+            generateAvailableTimeSlots();
+        });
         
         // 步驟切換功能
         document.getElementById('toStep2').addEventListener('click', function() {
@@ -756,41 +809,23 @@
                 document.getElementById('serviceError').style.display = 'none';
             }
             
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+            
+            // 更新服務項目摘要
+            updateServicesSummary();
+            
             // 更新所需時長顯示
             const totalDuration = calculateTotalDuration();
             document.getElementById('requiredDuration').textContent = totalDuration;
             
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('step3').style.display = 'block';
+            // 重新生成時段
+            generateAvailableTimeSlots();
         });
         
         document.getElementById('backToStep2').addEventListener('click', function() {
             document.getElementById('step3').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
-        });
-        
-        document.getElementById('toStep4').addEventListener('click', function() {
-            // 驗證是否選擇了日期和時間
-            if (!document.getElementById('appointmentDate').value) {
-                alert('請選擇預約日期');
-                return;
-            }
-            
-            if (!document.getElementById('appointmentTime').value) {
-                alert('請選擇預約時段');
-                return;
-            }
-            
-            document.getElementById('step3').style.display = 'none';
-            document.getElementById('step4').style.display = 'block';
-            
-            // 更新預約摘要中的日期和時間
-            updateAppointmentSummary();
-        });
-        
-        document.getElementById('backToStep3').addEventListener('click', function() {
-            document.getElementById('step4').style.display = 'none';
-            document.getElementById('step3').style.display = 'block';
         });
         
         // 更新日期顯示格式的處理函數
@@ -817,14 +852,19 @@
                 document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
                 document.getElementById('summaryDate').textContent = formattedDateLong;
                 
-                // 顯示時段選擇區域
-                document.getElementById('timeSlotsContainer').style.display = 'block';
+                // 顯示日期顯示區域
+                document.querySelector('.selected-date-display').style.display = 'block';
                 
-                // 根據服務時長生成可用時段
+                // 重置時間選擇
+                document.getElementById('appointmentTime').value = '';
+                document.getElementById('appointmentEndTime').value = '';
+                document.getElementById('timeRangeDisplay').style.display = 'none';
+                
+                // 重新生成時段
                 generateAvailableTimeSlots();
             } else {
                 document.getElementById('dateDisplay').value = '';
-                document.getElementById('timeSlotsContainer').style.display = 'none';
+                document.querySelector('.selected-date-display').style.display = 'none';
             }
         });
         
@@ -847,8 +887,8 @@
                 document.getElementById('appointmentBeautician').value = beauticianId;
                 document.getElementById('summaryBeautician').textContent = beauticianId;
                 
-                // 顯示預約摘要
-                document.getElementById('appointmentSummary').style.display = 'block';
+                // 更新預約摘要
+                updateAppointmentSummary();
             });
         });
         
@@ -897,7 +937,20 @@
             document.querySelectorAll('input[name="service"]:checked').forEach(checkbox => {
                 totalDuration += parseInt(checkbox.dataset.duration);
             });
-            return totalDuration;
+            return totalDuration || 0; // 如果沒有選擇服務，返回0
+        }
+        
+        // 更新服務項目摘要
+        function updateServicesSummary() {
+            const selectedServices = document.querySelectorAll('input[name="service"]:checked');
+            const servicesList = Array.from(selectedServices).map(service => service.value);
+            document.getElementById('summaryServices').textContent = servicesList.join(', ');
+        }
+        
+        // 更新預約摘要
+        function updateAppointmentSummary() {
+            // 顯示預約摘要
+            document.getElementById('appointmentSummary').style.display = 'block';
         }
         
         // 根據服務時長生成可用時段
@@ -906,33 +959,91 @@
             const timeSlotsContainer = document.getElementById('availableTimeSlots');
             timeSlotsContainer.innerHTML = '';
             
-            // 假設營業時間是 10:00 - 20:00，每小時一個時段
+            // 假設營業時間是 10:00 - 20:00，每半小時一個時段
             const startHour = 10;
             const endHour = 20;
             
             // 根據所需時長，計算最晚可開始的時間
-            const latestStartHour = endHour - Math.ceil(totalDuration / 60);
+            const durationInHours = totalDuration / 60;
+            const latestStartHour = endHour - durationInHours;
             
-            for (let hour = startHour; hour <= latestStartHour; hour++) {
-                const timeSlot = document.createElement('div');
-                timeSlot.className = 'time-slot';
-                timeSlot.dataset.time = `${hour}:00`;
-                timeSlot.textContent = `${hour}:00`;
-                
-                // 隨機設置一些時段為不可用（示例）
-                if ((hour === 12 || hour === 16) && Math.random() > 0.5) {
-                    timeSlot.classList.add('unavailable');
-                } else {
+            // 生成每半小時一個時段
+            for (let hour = startHour; hour < endHour; hour++) {
+                for (let minute of [0, 30]) {
+                    // 計算時間點
+                    const timePoint = hour + minute / 60;
+                    
+                    // 如果這個時間點已經超過了最晚可開始的時間，則不再生成
+                    if (timePoint > latestStartHour) continue;
+                    
+                    // 格式化時間顯示
+                    const formattedHour = Math.floor(timePoint);
+                    const formattedMinute = minute === 0 ? '00' : '30';
+                    const timeText = `${formattedHour}:${formattedMinute}`;
+                    
+                    const timeSlot = document.createElement('div');
+                    timeSlot.className = 'time-slot';
+                    timeSlot.dataset.time = timeText;
+                    timeSlot.dataset.timePoint = timePoint;
+                    timeSlot.textContent = timeText;
+                    
+                    // 所有時段都可用
                     timeSlot.addEventListener('click', function() {
-                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                        this.classList.add('selected');
-                        document.getElementById('appointmentTime').value = this.dataset.time;
-                        document.getElementById('summaryTime').textContent = this.dataset.time;
+                        selectTimeSlot(this);
                     });
+                    
+                    timeSlotsContainer.appendChild(timeSlot);
                 }
-                
-                timeSlotsContainer.appendChild(timeSlot);
             }
+        }
+        
+        // 選擇時段並鎖定相應的時間範圍
+        function selectTimeSlot(selectedSlot) {
+            // 移除所有時段的選中狀態和預約狀態
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+                slot.classList.remove('reserved');
+            });
+            
+            // 設置當前時段為選中
+            selectedSlot.classList.add('selected');
+            
+            // 獲取所選時段的時間點和總時長
+            const startTimePoint = parseFloat(selectedSlot.dataset.timePoint);
+            const totalDuration = calculateTotalDuration();
+            const durationInHours = totalDuration / 60;
+            
+            // 計算結束時間點
+            const endTimePoint = startTimePoint + durationInHours;
+            
+            // 標記預約時間範圍內的所有時段
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                const slotTimePoint = parseFloat(slot.dataset.timePoint);
+                if (slotTimePoint > startTimePoint && slotTimePoint < endTimePoint) {
+                    slot.classList.add('reserved');
+                }
+            });
+            
+            // 更新隱藏欄位和顯示
+            const startTime = selectedSlot.dataset.time;
+            document.getElementById('appointmentTime').value = startTime;
+            
+            // 計算結束時間
+            const endHour = Math.floor(endTimePoint);
+            const endMinute = Math.round((endTimePoint - endHour) * 60);
+            const formattedEndMinute = endMinute === 0 ? '00' : endMinute.toString();
+            const endTime = `${endHour}:${formattedEndMinute}`;
+            document.getElementById('appointmentEndTime').value = endTime;
+            
+            // 更新預約時間範圍顯示
+            document.getElementById('appointmentTimeRange').textContent = `${startTime} - ${endTime}`;
+            document.getElementById('timeRangeDisplay').style.display = 'block';
+            
+            // 更新預約摘要
+            document.getElementById('summaryTime').textContent = `${startTime} - ${endTime}`;
+            
+            // 更新預約摘要
+            updateAppointmentSummary();
         }
         
         // 圖片預覽功能
@@ -942,24 +1053,24 @@
             preview.style.display = 'block';
         }
         
-        // 更新預約摘要
-        function updateAppointmentSummary() {
-            // 更新服務項目摘要
-            const selectedServices = document.querySelectorAll('input[name="service"]:checked');
-            const servicesList = Array.from(selectedServices).map(service => service.value);
-            document.getElementById('summaryServices').textContent = servicesList.join(', ');
-            
-            // 顯示預約摘要
-            document.getElementById('appointmentSummary').style.display = 'block';
-        }
-        
         // 表單提交處理
         document.getElementById('nailAppointmentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // 驗證是否選擇了美甲師
             if (!document.getElementById('appointmentBeautician').value) {
-                alert('請選擇美甲師！');
+                alert('請選擇美甲師');
+                return;
+            }
+            
+            // 驗證是否選擇了日期和時間
+            if (!document.getElementById('appointmentDate').value) {
+                alert('請選擇預約日期');
+                return;
+            }
+            
+            if (!document.getElementById('appointmentTime').value) {
+                alert('請選擇預約時段');
                 return;
             }
             
@@ -970,7 +1081,7 @@
                 line: document.getElementById('line').value,
                 beautician: document.getElementById('appointmentBeautician').value,
                 date: document.getElementById('appointmentDate').value,
-                time: document.getElementById('appointmentTime').value,
+                timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
                 services: Array.from(document.querySelectorAll('input[name="service"]:checked')).map(service => service.value),
                 totalPrice: document.querySelector('.total-price').textContent,
                 totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
