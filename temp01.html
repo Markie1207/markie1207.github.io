@@ -116,20 +116,6 @@
             background-color: #fef0f5;
         }
         
-        .service-option input[type="checkbox"] {
-            width: auto;
-            margin-right: 8px;
-            cursor: pointer;
-        }
-        
-        .service-option label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 0;
-            font-weight: normal;
-        }
-        
         .service-name {
             font-weight: bold;
             margin-bottom: 2px;
@@ -554,65 +540,35 @@
                     <label>選擇課程項目 <span style="color: red;">*</span></label>
                     <div id="serviceError" class="error-message">請至少選擇一項服務</div>
                     <div class="service-options">
-                        <div class="service-option" data-price="800" data-duration="60">
-                            <label>
-                                <input type="checkbox" name="service" value="基礎美甲" data-price="800" data-duration="60">
-                                <div>
-                                    <div class="service-name">基礎美甲</div>
-                                    <div class="service-price">NT$800</div>
-                                    <div class="service-duration">時長: 60分鐘</div>
-                                </div>
-                            </label>
+                        <div class="service-option" data-value="基礎美甲" data-price="800" data-duration="60">
+                            <div class="service-name">基礎美甲</div>
+                            <div class="service-price">NT$800</div>
+                            <div class="service-duration">時長: 60分鐘</div>
                         </div>
-                        <div class="service-option" data-price="1200" data-duration="90">
-                            <label>
-                                <input type="checkbox" name="service" value="凝膠美甲" data-price="1200" data-duration="90">
-                                <div>
-                                    <div class="service-name">凝膠美甲</div>
-                                    <div class="service-price">NT$1200</div>
-                                    <div class="service-duration">時長: 90分鐘</div>
-                                </div>
-                            </label>
+                        <div class="service-option" data-value="凝膠美甲" data-price="1200" data-duration="90">
+                            <div class="service-name">凝膠美甲</div>
+                            <div class="service-price">NT$1200</div>
+                            <div class="service-duration">時長: 90分鐘</div>
                         </div>
-                        <div class="service-option" data-price="1500" data-duration="120">
-                            <label>
-                                <input type="checkbox" name="service" value="藝術美甲" data-price="1500" data-duration="120">
-                                <div>
-                                    <div class="service-name">藝術美甲</div>
-                                    <div class="service-price">NT$1500</div>
-                                    <div class="service-duration">時長: 120分鐘</div>
-                                </div>
-                            </label>
+                        <div class="service-option" data-value="藝術美甲" data-price="1500" data-duration="120">
+                            <div class="service-name">藝術美甲</div>
+                            <div class="service-price">NT$1500</div>
+                            <div class="service-duration">時長: 120分鐘</div>
                         </div>
-                        <div class="service-option" data-price="1800" data-duration="150">
-                            <label>
-                                <input type="checkbox" name="service" value="指甲延長" data-price="1800" data-duration="150">
-                                <div>
-                                    <div class="service-name">指甲延長</div>
-                                    <div class="service-price">NT$1800</div>
-                                    <div class="service-duration">時長: 150分鐘</div>
-                                </div>
-                            </label>
+                        <div class="service-option" data-value="指甲延長" data-price="1800" data-duration="150">
+                            <div class="service-name">指甲延長</div>
+                            <div class="service-price">NT$1800</div>
+                            <div class="service-duration">時長: 150分鐘</div>
                         </div>
-                        <div class="service-option" data-price="500" data-duration="30">
-                            <label>
-                                <input type="checkbox" name="service" value="凝膠卸除" data-price="500" data-duration="30">
-                                <div>
-                                    <div class="service-name">凝膠卸除</div>
-                                    <div class="service-price">NT$500</div>
-                                    <div class="service-duration">時長: 30分鐘</div>
-                                </div>
-                            </label>
+                        <div class="service-option" data-value="凝膠卸除" data-price="500" data-duration="30">
+                            <div class="service-name">凝膠卸除</div>
+                            <div class="service-price">NT$500</div>
+                            <div class="service-duration">時長: 30分鐘</div>
                         </div>
-                        <div class="service-option" data-price="1600" data-duration="120">
-                            <label>
-                                <input type="checkbox" name="service" value="卸除+新做" data-price="1600" data-duration="120">
-                                <div>
-                                    <div class="service-name">卸除+新做</div>
-                                    <div class="service-price">NT$1600</div>
-                                    <div class="service-duration">時長: 120分鐘</div>
-                                </div>
-                            </label>
+                        <div class="service-option" data-value="卸除+新做" data-price="1600" data-duration="120">
+                            <div class="service-name">卸除+新做</div>
+                            <div class="service-price">NT$1600</div>
+                            <div class="service-duration">時長: 120分鐘</div>
                         </div>
                     </div>
                     
@@ -792,16 +748,22 @@
             
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
+            
+            // 滾動到頁面頂部
+            window.scrollTo({top: 0, behavior: 'smooth'});
         });
         
         document.getElementById('backToStep1').addEventListener('click', function() {
             document.getElementById('step2').style.display = 'none';
             document.getElementById('step1').style.display = 'block';
+            
+            // 滾動到頁面頂部
+            window.scrollTo({top: 0, behavior: 'smooth'});
         });
         
         document.getElementById('toStep3').addEventListener('click', function() {
             // 驗證是否選擇了至少一項服務
-            const selectedServices = document.querySelectorAll('input[name="service"]:checked');
+            const selectedServices = document.querySelectorAll('.service-option.selected');
             if (selectedServices.length === 0) {
                 document.getElementById('serviceError').style.display = 'block';
                 return;
@@ -821,11 +783,17 @@
             
             // 重新生成時段
             generateAvailableTimeSlots();
+            
+            // 滾動到頁面頂部
+            window.scrollTo({top: 0, behavior: 'smooth'});
         });
         
         document.getElementById('backToStep2').addEventListener('click', function() {
             document.getElementById('step3').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
+            
+            // 滾動到頁面頂部
+            window.scrollTo({top: 0, behavior: 'smooth'});
         });
         
         // 更新日期顯示格式的處理函數
@@ -892,33 +860,23 @@
             });
         });
         
-        // 服務選項點擊處理
+        // 服務選項點擊處理 - 整個區域可點擊，再點一次可取消選擇
         document.querySelectorAll('.service-option').forEach(option => {
-            option.addEventListener('click', function(e) {
-                // 如果點擊的不是 checkbox 本身，則模擬點擊 checkbox
-                if (e.target.type !== 'checkbox') {
-                    const checkbox = this.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                }
-                
-                // 更新選中狀態的視覺效果
-                if (this.querySelector('input[type="checkbox"]').checked) {
-                    this.classList.add('selected');
-                } else {
-                    this.classList.remove('selected');
-                }
+            option.addEventListener('click', function() {
+                // 切換選中狀態
+                this.classList.toggle('selected');
                 
                 // 更新總金額和總時長
                 updateTotalPrice();
                 updateTotalDuration();
             });
         });
-        
+
         // 更新總金額
         function updateTotalPrice() {
             let total = 0;
-            document.querySelectorAll('input[name="service"]:checked').forEach(checkbox => {
-                total += parseInt(checkbox.dataset.price);
+            document.querySelectorAll('.service-option.selected').forEach(option => {
+                total += parseInt(option.dataset.price);
             });
             document.querySelector('.total-price').textContent = `NT$${total}`;
             document.getElementById('summaryPrice').textContent = `NT$${total}`;
@@ -934,16 +892,16 @@
         // 計算總時長
         function calculateTotalDuration() {
             let totalDuration = 0;
-            document.querySelectorAll('input[name="service"]:checked').forEach(checkbox => {
-                totalDuration += parseInt(checkbox.dataset.duration);
+            document.querySelectorAll('.service-option.selected').forEach(option => {
+                totalDuration += parseInt(option.dataset.duration);
             });
             return totalDuration || 0; // 如果沒有選擇服務，返回0
         }
         
         // 更新服務項目摘要
         function updateServicesSummary() {
-            const selectedServices = document.querySelectorAll('input[name="service"]:checked');
-            const servicesList = Array.from(selectedServices).map(service => service.value);
+            const selectedServices = document.querySelectorAll('.service-option.selected');
+            const servicesList = Array.from(selectedServices).map(service => service.dataset.value);
             document.getElementById('summaryServices').textContent = servicesList.join(', ');
         }
         
@@ -1082,7 +1040,7 @@
                 beautician: document.getElementById('appointmentBeautician').value,
                 date: document.getElementById('appointmentDate').value,
                 timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
-                services: Array.from(document.querySelectorAll('input[name="service"]:checked')).map(service => service.value),
+                services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
                 totalPrice: document.querySelector('.total-price').textContent,
                 totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
                 notes: document.getElementById('notes').value
