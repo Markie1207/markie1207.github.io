@@ -310,6 +310,11 @@
             background-color: #fef0f5;
         }
 
+        .service-option.readonly {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
         .service-name {
             font-weight: bold;
             margin-bottom: 5px;
@@ -364,6 +369,58 @@
             color: #999;
             cursor: not-allowed;
             text-decoration: line-through;
+        }
+
+        /* 美甲師選擇樣式 */
+        .schedule-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .schedule-tab {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .schedule-tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        .schedule-tab.active {
+            background-color: #e83e8c;
+            color: white;
+            border-color: #e83e8c;
+        }
+
+        /* 日期選擇器 */
+        .date-picker {
+            position: relative;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+        }
+
+        /* 警告訊息 */
+        .warning-message {
+            color: #dc3545;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            display: none;
         }
     </style>
 </head>
@@ -436,8 +493,8 @@
                     <!-- 日期選擇器 -->
                     <div class="form-group">
                         <label>預約日期</label>
-                        <div class="date-picker-container">
-                            <div id="dateDisplay" class="date-display"></div>
+                        <div class="date-picker">
+                            <input type="date" id="dateInput" class="date-input">
                         </div>
                     </div>
 
@@ -470,28 +527,10 @@
 
                     <!-- 服務選項 -->
                     <div class="form-group">
-                        <label>選擇服務</label>
-                        <div class="service-options">
-                            <div class="service-option" data-service="基礎美甲" data-price="800">
-                                <div class="service-name">基礎美甲</div>
-                                <div class="service-price">NT$800</div>
-                            </div>
-                            <div class="service-option" data-service="凝膠美甲" data-price="1200">
-                                <div class="service-name">凝膠美甲</div>
-                                <div class="service-price">NT$1200</div>
-                            </div>
-                            <div class="service-option" data-service="藝術美甲" data-price="1500">
-                                <div class="service-name">藝術美甲</div>
-                                <div class="service-price">NT$1500</div>
-                            </div>
-                            <div class="service-option" data-service="指甲延長" data-price="1800">
-                                <div class="service-name">指甲延長</div>
-                                <div class="service-price">NT$1800</div>
-                            </div>
-                            <div class="service-option" data-service="凝膠卸除" data-price="500">
-                                <div class="service-name">凝膠卸除</div>
-                                <div class="service-price">NT$500</div>
-                            </div>
+                        <label>服務項目（唯讀）</label>
+                        <div id="serviceDisplay" class="service-display"></div>
+                        <div class="warning-message" id="serviceWarning">
+                            如需變更服務項目，請取消此預約並重新預約。
                         </div>
                         <div class="total-price-container">
                             總金額: <span class="total-price">NT$0</span>
@@ -516,10 +555,33 @@
             service: '基礎美甲',
             status: '已確認',
             price: 800
-        }];
+        },
+        {
+            id: 2,
+            name: '彭方筠',
+            phone: '0987720962',
+            date: '2025/04/28',
+            time: '15:00',
+            beautician: '美甲師B',
+            service: '基礎美甲',
+            status: '已確認',
+            price: 800
+        },
+        {
+            id: 3,
+            name: '彭方筠',
+            phone: '0987720962',
+            date: '2025/05/28',
+            time: '18:00',
+            beautician: '美甲師C',
+            service: '基礎足部',
+            status: '已確認',
+            price: 500
+        },
+        ];
 
-                // 修改查詢表單提交處理
-                document.getElementById('queryForm').addEventListener('submit', function(e) {
+        // 修改查詢表單提交處理
+        document.getElementById('queryForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // 隱藏範例區域
@@ -527,13 +589,19 @@
             
             const phone = document.getElementById('phone').value;
 
-            // 查找預約記錄
-            let appointment = appointments.find(a => a.phone === phone);
+            // 查找所有匹配的預約記錄
+            let matchedAppointments = appointments.filter(a => a.phone === phone);
 
             const queryResult = document.getElementById('queryResult');
-            if (appointment) {
-                queryResult.innerHTML = `
-                    <div class="appointment-card">
+            if (matchedAppointments.length > 0) {
+                // 清空之前的結果
+                queryResult.innerHTML = '';
+                
+                // 為每個匹配的預約創建一個卡片
+                matchedAppointments.forEach(appointment => {
+                    const appointmentCard = document.createElement('div');
+                    appointmentCard.className = 'appointment-card';
+                    appointmentCard.innerHTML = `
                         <div class="appointment-header">
                             <span class="appointment-status ${appointment.status === '已確認' ? 'status-confirmed' : 'status-cancelled'}">
                                 ${appointment.status}
@@ -573,8 +641,9 @@
                                 <button class="delete-btn" onclick="deleteAppointment(${appointment.id})">取消預約</button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                    queryResult.appendChild(appointmentCard);
+                });
             }
             else {
                 queryResult.innerHTML = `
@@ -609,8 +678,10 @@
             const appointment = appointments.find(a => a.id === id);
             if (!appointment) return;
 
-            // 設置日期顯示
-            document.getElementById('dateDisplay').textContent = appointment.date;
+            // 設置日期選擇器
+            const dateObj = new Date(appointment.date.replace(/\//g, '-'));
+            const formattedDate = dateObj.toISOString().split('T')[0];
+            document.getElementById('dateInput').value = formattedDate;
             document.getElementById('editAppointmentId').value = id;
 
             // 選中當前美甲師
@@ -631,15 +702,17 @@
                 }
             });
 
-            // 選中當前服務
-            document.querySelectorAll('.service-option').forEach(option => {
-                if (option.dataset.service === appointment.service) {
-                    option.classList.add('selected');
-                    updateTotalPrice(parseInt(option.dataset.price));
-                } else {
-                    option.classList.remove('selected');
-                }
-            });
+            // 顯示服務項目（唯讀）
+            const serviceDisplay = document.getElementById('serviceDisplay');
+            serviceDisplay.innerHTML = `
+                <div class="service-option selected readonly">
+                    <div class="service-name">${appointment.service}</div>
+                    <div class="service-price">NT$${appointment.price}</div>
+                </div>
+            `;
+            
+            // 更新總金額
+            updateTotalPrice(appointment.price);
 
             // 顯示編輯視窗
             document.getElementById('editModal').style.display = 'block';
@@ -692,13 +765,14 @@
             });
         });
 
-        // 服務選擇
-        document.querySelectorAll('.service-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.service-option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-                updateTotalPrice(parseInt(this.dataset.price));
-            });
+        // 服務選項點擊顯示警告
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.service-option.readonly')) {
+                document.getElementById('serviceWarning').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('serviceWarning').style.display = 'none';
+                }, 3000);
+            }
         });
 
         // 編輯表單提交
@@ -709,21 +783,23 @@
             const appointment = appointments.find(a => a.id === id);
             
             if (appointment) {
+                const selectedDate = document.getElementById('dateInput').value;
                 const selectedBeautician = document.querySelector('.schedule-tab.active')?.dataset.beautician;
                 const selectedTime = document.querySelector('.time-slot.selected')?.dataset.time;
-                const selectedService = document.querySelector('.service-option.selected')?.dataset.service;
-                const selectedPrice = parseInt(document.querySelector('.service-option.selected')?.dataset.price || 0);
 
-                if (!selectedBeautician || !selectedTime || !selectedService) {
+                if (!selectedDate || !selectedBeautician || !selectedTime) {
                     alert('請完整選擇預約資訊');
                     return;
                 }
 
+                // 將日期格式從 YYYY-MM-DD 轉換為 YYYY/MM/DD
+                const formattedDate = selectedDate.replace(/-/g, '/');
+
                 // 更新預約資訊
+                appointment.date = formattedDate;
                 appointment.beautician = selectedBeautician;
                 appointment.time = selectedTime;
-                appointment.service = selectedService;
-                appointment.price = selectedPrice;
+                // 服務和價格保持不變
 
                 // 關閉編輯視窗並更新顯示
                 document.getElementById('editModal').style.display = 'none';
