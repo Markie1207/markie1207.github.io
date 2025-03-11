@@ -1135,11 +1135,115 @@
                 totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
                 notes: document.getElementById('notes').value
             };
+
+            // 初始化時將當前步驟存入歷史記錄
+            window.addEventListener('load', function() {
+                // 保持原有的初始化代碼
+                setMinDate();
+                const totalDuration = calculateTotalDuration();
+                document.getElementById('requiredDuration').textContent = totalDuration;
+                generateAvailableTimeSlots();
+                
+                // 添加新的歷史記錄處理
+                history.replaceState({ step: 1 }, '');
+            });
+
+            // 監聽瀏覽器的後退/前進按鈕事件
+            window.addEventListener('popstate', function(event) {
+                if (event.state && event.state.step) {
+                    showStep(event.state.step);
+                }
+            });
+
+            // 顯示指定步驟的函數
+            function showStep(stepNumber) {
+                // 隱藏所有步驟
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'none';
+                document.getElementById('step3').style.display = 'none';
+                
+                // 顯示指定步驟
+                document.getElementById('step' + stepNumber).style.display = 'block';
+                
+                // 滾動到頁面頂部
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+
+            // 修改現有的步驟切換按鈕事件處理程序
+            document.getElementById('toStep2').addEventListener('click', function() {
+                // 保持原有的驗證邏輯
+                const nameInput = document.getElementById('name');
+                const phoneInput = document.getElementById('phone');
+                
+                if (!nameInput.value) {
+                    alert('請輸入姓名');
+                    nameInput.focus();
+                    return;
+                }
+                
+                if (!phoneInput.value || !phoneInput.checkValidity()) {
+                    alert('請輸入有效的手機號碼');
+                    phoneInput.focus();
+                    return;
+                }
+                
+                // 更新歷史記錄並顯示步驟2
+                history.pushState({ step: 2 }, '', '#step2');
+                showStep(2);
+            });
+
+            document.getElementById('toStep3').addEventListener('click', function() {
+                // 保持原有的驗證邏輯
+                const selectedServices = document.querySelectorAll('.service-option.selected');
+                if (selectedServices.length === 0) {
+                    document.getElementById('serviceError').style.display = 'block';
+                    return;
+                } else {
+                    document.getElementById('serviceError').style.display = 'none';
+                }
+                
+                // 更新歷史記錄並顯示步驟3
+                history.pushState({ step: 3 }, '', '#step3');
+                showStep(3);
+                
+                // 保持原有的更新邏輯
+                updateServicesSummary();
+                const totalDuration = calculateTotalDuration();
+                document.getElementById('requiredDuration').textContent = totalDuration;
+                generateAvailableTimeSlots();
+            });
+
+            document.getElementById('backToStep1').addEventListener('click', function() {
+                // 使用瀏覽器的後退功能
+                history.back();
+            });
+
+            document.getElementById('backToStep2').addEventListener('click', function() {
+                // 使用瀏覽器的後退功能
+                history.back();
+            });
             
-            console.log('預約資料:', formData);
-            alert('預約已提交！我們會盡快與您聯繫確認。');
-            
-            // 實際應用中，這裡應該有更完善的處理邏輯，例如 AJAX 提交到後端
+            // 發送POST請求到Python後端
+            fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('預約已成功提交！我們會盡快與您聯繫確認。');
+                    // 可以在這裡重置表單或進行其他操作
+                } else {
+                    alert('預約提交失敗：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('預約提交時發生錯誤，請稍後再試。');
+            });
         });
     </script>
 </body>
