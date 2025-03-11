@@ -5,6 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>美甲預約系統</title>
     <style>
+        /* 返回按鈕樣式 */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #e83e8c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .back-button:hover {
+            background-color: #d6336c;
+        }
+
+        /* 為了避免返回按鈕遮擋內容，給容器添加上邊距 */
+        .container {
+            margin-top: 60px;
+        }
+
+        /* 返回圖標樣式 */
+        .back-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* 在手機版隱藏文字，只顯示圖標 */
+        @media (max-width: 768px) {
+            .back-button span {
+                display: none;
+            }
+            
+            .back-button {
+                padding: 10px;
+                border-radius: 50%;
+            }
+        }
+
+        .back-button:hover {
+            background-color: #d6336c;
+        }
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
             line-height: 1.6;
@@ -504,6 +553,14 @@
     </style>
 </head>
 <body>
+    <!-- 添加返回按鈕 -->
+    <button class="back-button" id="backButton">
+        <svg class="back-icon" viewBox="0 0 24 24">
+            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+        </svg>
+        <span>返回</span>
+    </button>
+    
     <div class="container">
         <h1>美甲預約表單</h1>
         
@@ -796,6 +853,65 @@
     </div>
 
     <script>
+        // 添加返回按鈕處理
+        document.getElementById('backButton').addEventListener('click', function() {
+            handleBackNavigation();
+        });
+
+        // 處理瀏覽器返回按鈕
+        window.addEventListener('popstate', function(event) {
+            handleBackNavigation();
+        });
+
+        // 返回導航處理函數
+        function handleBackNavigation() {
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+
+            if (step3 && step3.style.display !== 'none') {
+                // 如果在步驟3，返回到步驟2
+                step3.style.display = 'none';
+                step2.style.display = 'block';
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                return;
+            } 
+            
+            if (step2 && step2.style.display !== 'none') {
+                // 如果在步驟2，返回到步驟1
+                step2.style.display = 'none';
+                step1.style.display = 'block';
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                return;
+            }
+            
+            // 如果在步驟1，執行返回上一頁
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // 修改原有的步驟切換，添加歷史記錄
+        document.getElementById('toStep2').addEventListener('click', function() {
+            if (validateStep1()) {
+                history.pushState({ step: 2 }, '');
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        });
+
+        document.getElementById('toStep3').addEventListener('click', function() {
+            if (validateStep2()) {
+                history.pushState({ step: 3 }, '');
+                document.getElementById('step2').style.display = 'none';
+                document.getElementById('step3').style.display = 'block';
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        });
+
         // 設置最小日期為今天
         function setMinDate() {
             const today = new Date();
@@ -1135,94 +1251,7 @@
                 totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
                 notes: document.getElementById('notes').value
             };
-
-            // 初始化時將當前步驟存入歷史記錄
-            window.addEventListener('load', function() {
-                // 保持原有的初始化代碼
-                setMinDate();
-                const totalDuration = calculateTotalDuration();
-                document.getElementById('requiredDuration').textContent = totalDuration;
-                generateAvailableTimeSlots();
-                
-                // 添加新的歷史記錄處理
-                history.replaceState({ step: 1 }, '');
-            });
-
-            // 監聽瀏覽器的後退/前進按鈕事件
-            window.addEventListener('popstate', function(event) {
-                if (event.state && event.state.step) {
-                    showStep(event.state.step);
-                }
-            });
-
-            // 顯示指定步驟的函數
-            function showStep(stepNumber) {
-                // 隱藏所有步驟
-                document.getElementById('step1').style.display = 'none';
-                document.getElementById('step2').style.display = 'none';
-                document.getElementById('step3').style.display = 'none';
-                
-                // 顯示指定步驟
-                document.getElementById('step' + stepNumber).style.display = 'block';
-                
-                // 滾動到頁面頂部
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            }
-
-            // 修改現有的步驟切換按鈕事件處理程序
-            document.getElementById('toStep2').addEventListener('click', function() {
-                // 保持原有的驗證邏輯
-                const nameInput = document.getElementById('name');
-                const phoneInput = document.getElementById('phone');
-                
-                if (!nameInput.value) {
-                    alert('請輸入姓名');
-                    nameInput.focus();
-                    return;
-                }
-                
-                if (!phoneInput.value || !phoneInput.checkValidity()) {
-                    alert('請輸入有效的手機號碼');
-                    phoneInput.focus();
-                    return;
-                }
-                
-                // 更新歷史記錄並顯示步驟2
-                history.pushState({ step: 2 }, '', '#step2');
-                showStep(2);
-            });
-
-            document.getElementById('toStep3').addEventListener('click', function() {
-                // 保持原有的驗證邏輯
-                const selectedServices = document.querySelectorAll('.service-option.selected');
-                if (selectedServices.length === 0) {
-                    document.getElementById('serviceError').style.display = 'block';
-                    return;
-                } else {
-                    document.getElementById('serviceError').style.display = 'none';
-                }
-                
-                // 更新歷史記錄並顯示步驟3
-                history.pushState({ step: 3 }, '', '#step3');
-                showStep(3);
-                
-                // 保持原有的更新邏輯
-                updateServicesSummary();
-                const totalDuration = calculateTotalDuration();
-                document.getElementById('requiredDuration').textContent = totalDuration;
-                generateAvailableTimeSlots();
-            });
-
-            document.getElementById('backToStep1').addEventListener('click', function() {
-                // 使用瀏覽器的後退功能
-                history.back();
-            });
-
-            document.getElementById('backToStep2').addEventListener('click', function() {
-                // 使用瀏覽器的後退功能
-                history.back();
-            });
-            
+                       
             // 發送POST請求到Python後端
             fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
                 method: 'POST',
