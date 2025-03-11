@@ -1136,10 +1136,27 @@
                 notes: document.getElementById('notes').value
             };
             
-            console.log('預約資料:', formData);
-            alert('預約已提交！我們會盡快與您聯繫確認。');
-            
-            // 實際應用中，這裡應該有更完善的處理邏輯，例如 AJAX 提交到後端
+            // 發送POST請求到Python後端
+            fetch('http://localhost:5000/submit_appointment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('預約已成功提交！我們會盡快與您聯繫確認。');
+                    // 可以在這裡重置表單或進行其他操作
+                } else {
+                    alert('預約提交失敗：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('預約提交時發生錯誤，請稍後再試。');
+            });
         });
     </script>
 </body>
