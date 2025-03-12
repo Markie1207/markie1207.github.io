@@ -1,0 +1,141 @@
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
+import pandas as pd
+import os
+from datetime import datetime
+import base64
+
+app = Flask(__name__)
+CORS(app)  # 允許所有來源的跨域請求
+
+# 設定數據存儲目錄
+DATA_DIR = 'D:/Web_test/data'
+IMAGES_DIR = os.path.join(DATA_DIR, 'images')
+EXCEL_FILE = os.path.join(DATA_DIR, 'appointments.xlsx')
+
+# 確保必要的目錄都存在
+for directory in [DATA_DIR, IMAGES_DIR]:
+    if not os.path.exists(directory):
+        try:
+            os.makedirs(directory)
+            print(f"創建目錄: {directory}")
+        except Exception as e:
+            print(f"創建目錄失敗 {directory}: {str(e)}")
+
+def create_excel_if_not_exists():
+    """創建 Excel 文件如果不存在"""
+    try:
+        if not os.path.exists(EXCEL_FILE):
+            columns = [
+                'name',           # 姓名
+                'phone',          # 手機號碼
+                'line',           # Line ID
+                'date',           # 預約日期
+                'time_range',     # 時段
+                'beautician',     # 美甲師
+                'services',       # 服務項目
+                'total_price',    # 總金額
+                'total_duration', # 總時長
+                'notes',          # 其他備註
+                'submitted_at',   # 建立時間
+                'image_path'      # 圖片路徑
+            ]
+            df = pd.DataFrame(columns=columns)
+            df.to_excel(EXCEL_FILE, index=False)
+            print(f"已創建新的 Excel 文件: {EXCEL_FILE}")
+    except Exception as e:
+        print(f"創建 Excel 文件失敗: {str(e)}")
+
+def save_image(image_data, name, date):
+    """保存圖片並返回保存路徑"""
+    try:
+        if not image_data:
+            return None
+        
+        # 從 Base64 字符串中提取實際的圖片數據
+        if ',' in image_data:
+            image_data = image_data.split(',')[1]
+        
+        # 清理檔案名中的特殊字符
+        safe_name = "".join(c for c in name if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_date = date.replace('-', '')
+        
+        # 創建檔案名
+        filename = f"{safe_name}_{safe_date}_{datetime.now().strftime('%H%M%S')}.jpg"
+        filepath = os.path.join(IMAGES_DIR, filename)
+        
+        # 解碼並保存圖片
+        try:
+            image_bytes = base64.b64decode(image_data)
+            with open(filepath, 'wb') as f:
+                f.write(image_bytes)
+            print(f"圖片已保存: {filepath}")
+            return filepath
+        except Exception as e:
+            print(f"保存圖片時出錯: {str(e)}")
+            return None
+            
+    except Exception as e:
+        print(f"處理圖片時出錯: {str(e)}")
+        return None
+
+@app.route('/submit_appointment', methods=['POST'])
+def submit_appointment():
+    try:
+        create_excel_if_not_exists()
+        
+        data = request.json
+        print("收到預約數據:", data)
+        
+        # 保存圖片（如果有）
+        image_path = None
+        if data.get('imageData'):
+            image_path = save_image(
+                data.get('imageData'),
+                data.get('name'),
+                data.get('date')
+            )
+        
+        # 創建新的預約記錄
+        new_record = {
+            'name': data.get('name'),
+            'phone': data.get('phone'),
+            'line': data.get('line'),
+            'date': data.get('date'),
+            'time_range': data.get('timeRange'),
+            'beautician': data.get('beautician'),
+            'services': ', '.join(data.get('services', [])),
+            'total_price': data.get('totalPrice'),
+            'total_duration': data.get('totalDuration'),
+            'notes': data.get('notes'),
+            'submitted_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'image_path': image_path
+        }
+        
+        # 讀取現有數據或創建新的 DataFrame
+        try:
+            df = pd.read_excel(EXCEL_FILE)
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=list(new_record.keys()))
+        
+        # 添加新記錄
+        df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
+        
+        # 保存到 Excel
+        df.to_excel(EXCEL_FILE, index=False)
+        print(f"數據已保存到 Excel: {EXCEL_FILE}")
+        
+        return jsonify({
+            'success': True,
+            'message': '預約資料已成功提交！'
+        })
+        
+    except Exception as e:
+        print(f"處理預約時出錯: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'提交失敗: {str(e)}'
+        }), 500
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000, debug=True)
