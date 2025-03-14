@@ -131,21 +131,7 @@
             font-size: 0.9em;
             margin-top: 2px;
         }
-        
-        .file-upload {
-            margin-top: 10px;
-        }
-        
-        .file-upload-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #e83e8c;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
+                
         .file-upload-btn:hover {
             background-color: #d6336c;
         }
@@ -165,20 +151,7 @@
         .submit-btn:hover {
             background-color: #d6336c;
         }
-        
-        .preview-container {
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        #imagePreview {
-            max-width: 100%;
-            max-height: 200px;
-            display: none;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
-        
+     
         .date-picker {
             margin-bottom: 15px;
             position: relative;
@@ -667,20 +640,7 @@
                         <div class="total-duration">總時長: <span id="totalDuration">0</span> 分鐘</div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="designImage">上傳您想要的美甲設計圖片</label>
-                    <div class="file-upload">
-                        <input type="file" id="designImage" name="designImage" accept="image/*" onchange="handleImageUpload(event)">
-                        <label for="designImage" class="file-upload-btn">選擇圖片</label>
-                    </div>
-                    <div class="preview-container">
-                        <img id="imagePreview" src="#" alt="預覽圖片">
-                    </div>
-                    <div id="uploadStatus" style="margin-top: 10px; color: #e83e8c;"></div>
-                    <input type="hidden" id="imageData" name="imageData">
-                </div>
-                
+                                
                 <div class="clearfix">
                     <button type="button" class="prev-step-btn" id="backToStep1">上一步</button>
                     <button type="button" class="next-step-btn" id="toStep3">下一步</button>
@@ -1060,44 +1020,6 @@
                 updateAppointmentSummary();
             }
 
-            // 圖片上傳處理
-            function handleImageUpload(event) {
-                const file = event.target.files[0];
-                const preview = document.getElementById('imagePreview');
-                const statusDiv = document.getElementById('uploadStatus');
-                const imageData = document.getElementById('imageData');
-                
-                if (!file) {
-                    statusDiv.textContent = '請選擇圖片檔案';
-                    return;
-                }
-                
-                if (!file.type.startsWith('image/')) {
-                    statusDiv.textContent = '請選擇圖片檔案（JPG、PNG、GIF等）';
-                    return;
-                }
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    statusDiv.textContent = '圖片大小不能超過 5MB';
-                    return;
-                }
-                
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imageData.value = e.target.result;
-                    statusDiv.textContent = '圖片已準備好上傳';
-                    statusDiv.style.color = '#28a745';
-                };
-                reader.onerror = function() {
-                    statusDiv.textContent = '圖片處理失敗，請重試';
-                    statusDiv.style.color = '#dc3545';
-                };
-                reader.readAsDataURL(file);
-            }
-
             // 表單提交處理
             function handleFormSubmit(e) {
                 e.preventDefault();
@@ -1127,8 +1049,7 @@
                     services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
                     totalPrice: document.querySelector('.total-price').textContent,
                     totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
-                    notes: document.getElementById('notes').value,
-                    imageData: document.getElementById('imageData').value
+                    notes: document.getElementById('notes').value
                 };
                 
                 fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
