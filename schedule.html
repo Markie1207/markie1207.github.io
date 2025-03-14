@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美甲預約班表</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .schedule-container {
+            margin-top: 20px;
+        }
+        .day-schedule {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .day-header {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+        .appointment-card {
+            border-left: 4px solid #007bff;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        .appointment-time {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .appointment-details {
+            margin-top: 10px;
+        }
+        .service-tag {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 2px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+        .beautician-filter {
+            margin-bottom: 15px;
+        }
+        .appointment-image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .modal-image {
+            max-width: 100%;
+        }
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        .no-appointments {
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4 text-center">美甲預約班表</h1>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="startDate" class="form-label">開始日期</label>
+                <input type="text" class="form-control" id="startDate" placeholder="選擇開始日期">
+            </div>
+            <div class="col-md-4">
+                <label for="endDate" class="form-label">結束日期</label>
+                <input type="text" class="form-control" id="endDate" placeholder="選擇結束日期">
+            </div>
+            <div class="col-md-4">
+                <label for="beauticianFilter" class="form-label">美甲師</label>
+                <select class="form-select" id="beauticianFilter">
+                    <option value="">所有美甲師</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary" id="searchButton">查詢班表</button>
+        </div>
+        
+        <div id="loading" class="loading d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">載入中...</span>
+            </div>
+            <p>載入中，請稍候...</p>
+        </div>
+        
+        <div id="scheduleContainer" class="schedule-container">
+            <!-- 班表將在這裡動態生成 -->
+        </div>
+    </div>
+    
+    <!-- 圖片預覽 Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">預約參考圖片</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" class="modal-image" src="" alt="預約參考圖片">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
+    <script src="schedule.js"></script>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // API 基礎 URL - 請替換為您的 API 網址
+    const API_BASE_URL = 'https://markie1207.pythonanywhere.com';
+    
+    // 初始化日期選擇器
+    flatpickr("#startDate", {
+        locale: "zh-tw",
+        dateFormat: "Y-m-d",
+        defaultDate: new Date()
+    });
+    
+    flatpickr("#endDate", {
+        locale: "zh-tw",
+        dateFormat: "Y-m-d",
+        defaultDate: new Date(new Date().setDate(new Date().getDate() + 7))  // 預設為一週後
+    });
+    
+    // 初始化圖片 Modal
+    const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    
+    // 查詢按鈕點擊事件
+    document.getElementById('searchButton').addEventListener('click', fetchSchedule);
+    
+    // 頁面載入時自動查詢
+    fetchSchedule();
+    
+    // 獲取班表資料
+    function fetchSchedule() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const beautician = document.getElementById('beauticianFilter').value;
+        
+        // 顯示載入中
+        document.getElementById('loading').classList.remove('d-none');
+        document.getElementById('scheduleContainer').innerHTML = '';
+        
+        // 構建查詢參數
+        let queryParams = new URLSearchParams();
+        if (startDate) queryParams.append('start_date', startDate);
+        if (endDate) queryParams.append('end_date', endDate);
+        if (beautician) queryParams.append('beautician', beautician);
+        
+        // 發送請求
+        fetch(`${API_BASE_URL}/get_schedule?${queryParams.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                // 隱藏載入中
+                document.getElementById('loading').classList.add('d-none');
+                
+                if (data.success) {
+                    // 更新美甲師篩選下拉選單
+                    updateBeauticianFilter(data.beauticians || []);
+                    
+                    // 顯示班表
+                    renderSchedule(data.schedule || []);
+                } else {
+                    showError(data.message || '獲取班表失敗');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').classList.add('d-none');
+                showError('網路錯誤，請稍後再試');
+                console.error('Error fetching schedule:', error);
+            });
+    }
+    
+    // 更新美甲師篩選選項
+    function updateBeauticianFilter(beauticians) {
+        const filter = document.getElementById('beauticianFilter');
+        const currentValue = filter.value;
+        
+        // 保留第一個"所有美甲師"選項
+        filter.innerHTML = '<option value="">所有美甲師</option>';
+        
+        // 添加美甲師選項
+        beauticians.forEach(beautician => {
+            const option = document.createElement('option');
+            option.value = beautician;
+            option.textContent = beautician;
+            filter.appendChild(option);
+        });
+        
+        // 恢復之前選擇的值（如果存在）
+        if (currentValue && beauticians.includes(currentValue)) {
+            filter.value = currentValue;
+        }
+    }
+    
+    // 渲染班表
+    function renderSchedule(appointments) {
+        const container = document.getElementById('scheduleContainer');
+        container.innerHTML = '';
+        
+        if (appointments.length === 0) {
+            container.innerHTML = '<div class="no-appointments">沒有符合條件的預約</div>';
+            return;
+        }
+        
+        // 按日期分組
+        const appointmentsByDate = groupByDate(appointments);
+        
+        // 按日期排序
+        const sortedDates = Object.keys(appointmentsByDate).sort();
+        
+        // 為每個日期創建一個區塊
+        sortedDates.forEach(date => {
+            const dayAppointments = appointmentsByDate[date];
+            
+            // 創建日期標題
+            const dayContainer = document.createElement('div');
+            dayContainer.className = 'day-schedule';
+            
+            const dateObj = new Date(date);
+            const weekday = ['日', '一', '二', '三', '四', '五', '六'][dateObj.getDay()];
+            
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = `${date} (${weekday})`;
+            dayContainer.appendChild(dayHeader);
+            
+            // 按時間排序當天的預約
+            dayAppointments.sort((a, b) => {
+                return a.startTime.localeCompare(b.startTime);
+            });
+            
+            // 創建每個預約的卡片
+            dayAppointments.forEach(appointment => {
+                const card = createAppointmentCard(appointment);
+                dayContainer.appendChild(card);
+            });
+            
+            container.appendChild(dayContainer);
+        });
+    }
+    
+    // 按日期分組預約
+    function groupByDate(appointments) {
+        return appointments.reduce((groups, appointment) => {
+            const date = appointment.date;
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(appointment);
+            return groups;
+        }, {});
+    }
+    
+    // 創建預約卡片
+    function createAppointmentCard(appointment) {
+        const card = document.createElement('div');
+        card.className = 'appointment-card';
+        
+        // 時間和美甲師
+        const header = document.createElement('div');
+        header.className = 'appointment-time';
+        header.textContent = `${appointment.startTime} - ${appointment.endTime} | ${appointment.beautician}`;
+        card.appendChild(header);
+        
+        // 客戶資訊
+        const clientInfo = document.createElement('div');
+        clientInfo.className = 'mt-2';
+        clientInfo.innerHTML = `
+            <strong>${appointment.clientName}</strong>
+            <div>電話: ${appointment.phone}</div>
+            ${appointment.line ? `<div>Line: ${appointment.line}</div>` : ''}
+        `;
+        card.appendChild(clientInfo);
+        
+        // 服務項目
+        const services = document.createElement('div');
+        services.className = 'mt-2';
+        services.innerHTML = '<div>服務項目:</div>';
+        
+        const servicesList = document.createElement('div');
+        appointment.services.forEach(service => {
+            const tag = document.createElement('span');
+            tag.className = 'service-tag';
+            tag.textContent = service;
+            servicesList.appendChild(tag);
+        });
+        services.appendChild(servicesList);
+        card.appendChild(services);
+        
+        // 價格和時長
+        const priceAndDuration = document.createElement('div');
+        priceAndDuration.className = 'mt-2';
+        priceAndDuration.innerHTML = `
+            <div>總金額: $${appointment.totalPrice}</div>
+            <div>總時長: ${appointment.totalDuration}</div>
+        `;
+        card.appendChild(priceAndDuration);
+        
+        // 備註
+        if (appointment.notes) {
+            const notes = document.createElement('div');
+            notes.className = 'mt-2';
+            notes.innerHTML = `<div>備註: ${appointment.notes}</div>`;
+            card.appendChild(notes);
+        }
+        
+        // 圖片預覽（如果有）
+        if (appointment.hasImage) {
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'mt-2';
+            
+            const imagePreview = document.createElement('img');
+            imagePreview.className = 'appointment-image-preview';
+            imagePreview.alt = '點擊查看大圖';
+            imagePreview.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItaW1hZ2UiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIj48L3JlY3Q+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiPjwvY2lyY2xlPjxwb2x5bGluZSBwb2ludHM9IjIxIDE1IDE2IDEwIDUgMjEiPjwvcG9seWxpbmU+PC9zdmc+';
+            imagePreview.setAttribute('data-appointment-id', appointment.id);
+            
+            // 點擊圖片顯示大圖
+            imagePreview.addEventListener('click', function() {
+                const appointmentId = this.getAttribute('data-appointment-id');
+                showAppointmentImage(appointmentId);
+            });
+            
+            imageContainer.appendChild(imagePreview);
+            card.appendChild(imageContainer);
+        }
+        
+        return card;
+    }
+    
+    // 顯示預約圖片
+    function showAppointmentImage(appointmentId) {
+        // 顯示載入中
+        document.getElementById('modalImage').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItbG9hZGVyIj48bGluZSB4MT0iMTIiIHkxPSIyIiB4Mj0iMTIiIHkyPSI2Ij48L2xpbmU+PGxpbmUgeDE9IjEyIiB5MT0iMTgiIHgyPSIxMiIgeTI9IjIyIj48L2xpbmU+PGxpbmUgeDE9IjQuOTMiIHkxPSI0LjkzIiB4Mj0iNy43NiIgeTI9IjcuNzYiPjwvbGluZT48bGluZSB4MT0iMTYuMjQiIHkxPSIxNi4yNCIgeDI9IjE5LjA3IiB5Mj0iMTkuMDciPjwvbGluZT48bGluZSB4MT0iMiIgeTE9IjEyIiB4Mj0iNiIgeTI9IjEyIj48L2xpbmU+PGxpbmUgeDE9IjE4IiB5MT0iMTIiIHgyPSIyMiIgeTI9IjEyIj48L2xpbmU+PGxpbmUgeDE9IjQuOTMiIHkxPSIxOS4wNyIgeDI9IjcuNzYiIHkyPSIxNi4yNCI+PC9saW5lPjxsaW5lIHgxPSIxNi4yNCIgeTE9IjcuNzYiIHgyPSIxOS4wNyIgeTI9IjQuOTMiPjwvbGluZT48L3N2Zz4=';
+        imageModal.show();
+        
+        // 獲取圖片
+        fetch(`${API_BASE_URL}/get_appointment_image/${appointmentId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.imageData) {
+                    document.getElementById('modalImage').src = data.imageData;
+                } else {
+                    document.getElementById('modalImage').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItYWxlcnQtY2lyY2xlIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PGxpbmUgeDE9IjEyIiB5MT0iOCIgeDI9IjEyIiB5Mj0iMTIiPjwvbGluZT48bGluZSB4MT0iMTIiIHkxPSIxNiIgeDI9IjEyLjAxIiB5Mj0iMTYiPjwvbGluZT48L3N2Zz4=';
+                    console.error('Failed to load image:', data.message);
+                }
+            })
+            .catch(error => {
+                document.getElementById('modalImage').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItYWxlcnQtY2lyY2xlIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCI+PC9jaXJjbGU+PGxpbmUgeDE9IjEyIiB5MT0iOCIgeDI9IjEyIiB5Mj0iMTIiPjwvbGluZT48bGluZSB4MT0iMTIiIHkxPSIxNiIgeDI9IjEyLjAxIiB5Mj0iMTYiPjwvbGluZT48L3N2Zz4=';
+                console.error('Error loading image:', error);
+            });
+    }
+    
+    // 顯示錯誤訊息
+    function showError(message) {
+        const container = document.getElementById('scheduleContainer');
+        container.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
+    }
+});
+
+</script>
+</html>
