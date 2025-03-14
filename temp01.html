@@ -131,21 +131,7 @@
             font-size: 0.9em;
             margin-top: 2px;
         }
-        
-        .file-upload {
-            margin-top: 10px;
-        }
-        
-        .file-upload-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #e83e8c;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
+                
         .file-upload-btn:hover {
             background-color: #d6336c;
         }
@@ -165,20 +151,7 @@
         .submit-btn:hover {
             background-color: #d6336c;
         }
-        
-        .preview-container {
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        #imagePreview {
-            max-width: 100%;
-            max-height: 200px;
-            display: none;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
-        
+     
         .date-picker {
             margin-bottom: 15px;
             position: relative;
@@ -501,6 +474,110 @@
                 flex-direction: column;
             }
         }
+        /* 週曆樣式 */
+        .weekly-calendar {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            background-color: #e83e8c;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .calendar-nav button:hover {
+            background-color: #d6336c;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar-header-cell {
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+        }
+
+        .time-cell {
+            padding: 10px;
+            text-align: center;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            background-color: #f8f9fa;
+        }
+
+        .schedule-cell {
+            padding: 5px;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            min-height: 30px;
+            position: relative;
+        }
+
+        .schedule-cell.available {
+            background-color: #e8fff3;
+        }
+
+        .schedule-cell.unavailable {
+            background-color: #ffe8e8;
+        }
+
+        .schedule-cell.selected {
+            background-color: #e83e8c;
+            color: white;
+        }
+
+        .beautician-schedule {
+            font-size: 12px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 2px 0;
+        }
+
+        .beautician-A {
+            background-color: #ffebf3;
+            color: #e83e8c;
+        }
+
+        .beautician-B {
+            background-color: #e8f4ff;
+            color: #0066cc;
+        }
+
+        .beautician-C {
+            background-color: #f0ffe8;
+            color: #2d8a00;
+        }
+
+        .current-week {
+            font-weight: bold;
+            color: #e83e8c;
+        }
     </style>
 </head>
 <body>
@@ -667,20 +744,7 @@
                         <div class="total-duration">總時長: <span id="totalDuration">0</span> 分鐘</div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="designImage">上傳您想要的美甲設計圖片</label>
-                    <div class="file-upload">
-                        <input type="file" id="designImage" name="designImage" accept="image/*" onchange="handleImageUpload(event)">
-                        <label for="designImage" class="file-upload-btn">選擇圖片</label>
-                    </div>
-                    <div class="preview-container">
-                        <img id="imagePreview" src="#" alt="預覽圖片">
-                    </div>
-                    <div id="uploadStatus" style="margin-top: 10px; color: #e83e8c;"></div>
-                    <input type="hidden" id="imageData" name="imageData">
-                </div>
-                
+                                
                 <div class="clearfix">
                     <button type="button" class="prev-step-btn" id="backToStep1">上一步</button>
                     <button type="button" class="next-step-btn" id="toStep3">下一步</button>
@@ -690,7 +754,18 @@
             <!-- 步驟3: 選擇美甲師和預約時間 (整合步驟3和4) -->
             <div id="step3" class="step-container" style="display: none;">
                 <div class="step-title"><span class="step-number">3</span>選擇美甲師與預約時間</div>
-                
+                <div class="weekly-calendar">
+    <div class="calendar-header">
+        <div class="current-week">2025年3月第2週</div>
+        <div class="calendar-nav">
+            <button type="button" id="prevWeek">上一週</button>
+            <button type="button" id="nextWeek">下一週</button>
+        </div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+        <!-- 日曆內容將由 JavaScript 動態生成 -->
+    </div>
+</div>
                 <div class="combined-section">
                     <div class="left-section">
                         <div class="form-group">
@@ -782,6 +857,7 @@
                         <div class="summary-label">總金額:</div>
                         <div id="summaryPrice"></div>
                     </div>
+                    <div class="summary-end">上述信息僅供參考，請以實際花費時間及金額為準，謝謝！</div>
                 </div>
                 
                 <div class="form-group">
@@ -800,10 +876,18 @@
     <script>
             // 頁面加載時的初始化
             window.addEventListener('load', function() {
+                // 初始化日期限制
                 setMinDate();
+                
+                // 初始化總時長
                 const totalDuration = calculateTotalDuration();
                 document.getElementById('requiredDuration').textContent = totalDuration;
+                
+                // 初始化可用時段
                 generateAvailableTimeSlots();
+                
+                // 初始化週曆
+                initializeWeeklyCalendar();
                 
                 // 初始化所有事件監聽器
                 initializeEventListeners();
@@ -835,37 +919,7 @@
                 });
 
                 // 日期選擇處理
-                document.getElementById('appointmentDate').addEventListener('change', function() {
-                    const selectedDate = this.value;
-                    if (selectedDate) {
-                        const dateObj = new Date(selectedDate);
-                        const formattedDate = dateObj.toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit'
-                        });
-                        document.getElementById('dateDisplay').value = formattedDate;
-                        
-                        const formattedDateLong = dateObj.toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            weekday: 'long'
-                        });
-                        document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
-                        document.getElementById('summaryDate').textContent = formattedDateLong;
-                        document.querySelector('.selected-date-display').style.display = 'block';
-                        
-                        document.getElementById('appointmentTime').value = '';
-                        document.getElementById('appointmentEndTime').value = '';
-                        document.getElementById('timeRangeDisplay').style.display = 'none';
-                        
-                        generateAvailableTimeSlots();
-                    } else {
-                        document.getElementById('dateDisplay').value = '';
-                        document.querySelector('.selected-date-display').style.display = 'none';
-                    }
-                });
+                document.getElementById('appointmentDate').addEventListener('change', handleDateChange);
 
                 // 點擊日期顯示框時觸發日期選擇
                 document.getElementById('dateDisplay').addEventListener('click', function() {
@@ -899,6 +953,186 @@
 
                 // 表單提交處理
                 document.getElementById('nailAppointmentForm').addEventListener('submit', handleFormSubmit);
+            }
+
+            // 日期變更處理函數
+            function handleDateChange() {
+                const selectedDate = this.value;
+                if (selectedDate) {
+                    const dateObj = new Date(selectedDate);
+                    const formattedDate = dateObj.toLocaleDateString('zh-TW', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    document.getElementById('dateDisplay').value = formattedDate;
+                    
+                    const formattedDateLong = dateObj.toLocaleDateString('zh-TW', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                    document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
+                    document.getElementById('summaryDate').textContent = formattedDateLong;
+                    document.querySelector('.selected-date-display').style.display = 'block';
+                    
+                    document.getElementById('appointmentTime').value = '';
+                    document.getElementById('appointmentEndTime').value = '';
+                    document.getElementById('timeRangeDisplay').style.display = 'none';
+                    
+                    generateAvailableTimeSlots();
+                } else {
+                    document.getElementById('dateDisplay').value = '';
+                    document.querySelector('.selected-date-display').style.display = 'none';
+                }
+            }
+
+            // 週曆相關函數
+            function initializeWeeklyCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const today = new Date();
+            let currentWeekStart = getWeekStart(today);
+            
+            updateCalendarGrid(currentWeekStart);
+            
+            // 修改週曆導航按鈕的事件處理
+            document.getElementById('prevWeek').addEventListener('click', (e) => {
+                e.preventDefault(); // 阻止默認行為
+                e.stopPropagation(); // 阻止事件冒泡
+                currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+                updateCalendarGrid(currentWeekStart);
+            });
+            
+            document.getElementById('nextWeek').addEventListener('click', (e) => {
+                e.preventDefault(); // 阻止默認行為
+                e.stopPropagation(); // 阻止事件冒泡
+                currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                updateCalendarGrid(currentWeekStart);
+            });
+        }
+
+            function getWeekStart(date) {
+                const d = new Date(date);
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                return new Date(d.setDate(diff));
+            }
+
+            function updateCalendarGrid(weekStart) {
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // 添加表頭
+            calendarGrid.appendChild(createHeaderCell('時間'));
+            
+            // 添加日期表頭
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(weekStart.getDate() + i);
+                const headerText = `${date.getMonth() + 1}/${date.getDate()}\n${getWeekdayName(date.getDay())}`;
+                calendarGrid.appendChild(createHeaderCell(headerText));
+            }
+            
+            // 生成時間格子
+            for (let hour = 10; hour < 20; hour++) {
+                // 添加時間列
+                calendarGrid.appendChild(createTimeCell(`${hour}:00`));
+                
+                // 添加每個時段的格子
+                for (let day = 0; day < 7; day++) {
+                    const scheduleCell = document.createElement('div');
+                    scheduleCell.className = 'schedule-cell';
+                    
+                    // 模擬美甲師排班數據
+                    const beauticianSchedule = getBeauticianSchedule(hour, day);
+                    if (beauticianSchedule) {
+                        const scheduleDiv = document.createElement('div');
+                        scheduleDiv.className = `beautician-schedule beautician-${beauticianSchedule}`;
+                        scheduleDiv.textContent = `美甲師${beauticianSchedule}`;
+                        scheduleCell.appendChild(scheduleDiv);
+                        
+                        // 添加點擊事件
+                        scheduleCell.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const clickedDate = new Date(weekStart);
+                            clickedDate.setDate(weekStart.getDate() + day);
+                            
+                            // 更新日期選擇器的值，但保留其他已選擇的資訊
+                            const formattedDate = clickedDate.toISOString().split('T')[0];
+                            const dateInput = document.getElementById('appointmentDate');
+                            
+                            // 只有當選擇了不同的日期時才更新
+                            if (dateInput.value !== formattedDate) {
+                                dateInput.value = formattedDate;
+                                
+                                // 更新顯示的日期格式
+                                const dateObj = new Date(formattedDate);
+                                const formattedDisplayDate = dateObj.toLocaleDateString('zh-TW', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit'
+                                });
+                                document.getElementById('dateDisplay').value = formattedDisplayDate;
+                                
+                                // 更新長格式日期顯示
+                                const formattedDateLong = dateObj.toLocaleDateString('zh-TW', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    weekday: 'long'
+                                });
+                                document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
+                                document.getElementById('summaryDate').textContent = formattedDateLong;
+                                document.querySelector('.selected-date-display').style.display = 'block';
+                                
+                                // 根據新選擇的日期重新生成可用時段，但保持其他設置不變
+                                generateAvailableTimeSlots();
+                            }
+                        });
+                    }
+                    
+                    calendarGrid.appendChild(scheduleCell);
+                }
+            }
+            
+            // 只更新週曆標題，不影響其他部分
+            document.querySelector('.current-week').textContent = 
+                `${weekStart.getFullYear()}年${weekStart.getMonth() + 1}月第${getWeekOfMonth(weekStart)}週`;
+        }
+
+            function createHeaderCell(text) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-header-cell';
+                cell.textContent = text;
+                return cell;
+            }
+
+            function createTimeCell(text) {
+                const cell = document.createElement('div');
+                cell.className = 'time-cell';
+                cell.textContent = text;
+                return cell;
+            }
+
+            function getWeekdayName(day) {
+                const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                return weekdays[day];
+            }
+
+            function getWeekOfMonth(date) {
+                const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                return Math.ceil((date.getDate() + firstDay.getDay() - 1) / 7);
+            }
+
+            function getBeauticianSchedule(hour, day) {
+                // 這裡可以實現實際的排班邏輯
+                // 目前僅為演示用的隨機分配
+                if (Math.random() > 0.5) {
+                    const beauticians = ['A', 'B', 'C'];
+                    return beauticians[Math.floor(Math.random() * beauticians.length)];
+                }
+                return null;
             }
 
             // 驗證步驟1
@@ -1060,105 +1294,66 @@
                 updateAppointmentSummary();
             }
 
-            // 圖片上傳處理
-            function handleImageUpload(event) {
-                const file = event.target.files[0];
-                const preview = document.getElementById('imagePreview');
-                const statusDiv = document.getElementById('uploadStatus');
-                const imageData = document.getElementById('imageData');
-                
-                if (!file) {
-                    statusDiv.textContent = '請選擇圖片檔案';
-                    return;
-                }
-                
-                if (!file.type.startsWith('image/')) {
-                    statusDiv.textContent = '請選擇圖片檔案（JPG、PNG、GIF等）';
-                    return;
-                }
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    statusDiv.textContent = '圖片大小不能超過 5MB';
-                    return;
-                }
-                
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imageData.value = e.target.result;
-                    statusDiv.textContent = '圖片已準備好上傳';
-                    statusDiv.style.color = '#28a745';
-                };
-                reader.onerror = function() {
-                    statusDiv.textContent = '圖片處理失敗，請重試';
-                    statusDiv.style.color = '#dc3545';
-                };
-                reader.readAsDataURL(file);
-            }
-
             // 表單提交處理
             function handleFormSubmit(e) {
                 e.preventDefault();
                 
-                if (!document.getElementById('appointmentBeautician').value) {
-                    alert('請選擇美甲師');
-                    return;
-                }
-                
-                if (!document.getElementById('appointmentDate').value) {
-                    alert('請選擇預約日期');
-                    return;
-                }
-                
-                if (!document.getElementById('appointmentTime').value) {
-                    alert('請選擇預約時段');
-                    return;
-                }
-                
-                const formData = {
-                    name: document.getElementById('name').value,
-                    phone: document.getElementById('phone').value,
-                    line: document.getElementById('line').value,
-                    beautician: document.getElementById('appointmentBeautician').value,
-                    date: document.getElementById('appointmentDate').value,
-                    timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
-                    services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
-                    totalPrice: document.querySelector('.total-price').textContent,
-                    totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
-                    notes: document.getElementById('notes').value,
-                    imageData: document.getElementById('imageData').value
-                };
-                
-                fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('網路回應不正常');
+                // 只在實際提交表單時進行驗證
+                if (e.submitter && e.submitter.type === 'submit') {
+                    if (!document.getElementById('appointmentBeautician').value) {
+                        alert('請選擇美甲師');
+                        return;
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert('預約已成功提交！我們會盡快與您聯繫確認。');
-                        this.reset();
-                        document.getElementById('imagePreview').style.display = 'none';
-                        document.getElementById('uploadStatus').textContent = '';
-                        document.getElementById('imageData').value = '';
-                    } else {
-                        alert('預約提交失敗：' + (data.message || '未知錯誤'));
+                    
+                    if (!document.getElementById('appointmentDate').value) {
+                        alert('請選擇預約日期');
+                        return;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('預約提交時發生錯誤，請稍後再試。\n錯誤訊息：' + error.message);
-                });
+                    
+                    if (!document.getElementById('appointmentTime').value) {
+                        alert('請選擇預約時段');
+                        return;
+                    }
+                    
+                    const formData = {
+                        name: document.getElementById('name').value,
+                        phone: document.getElementById('phone').value,
+                        line: document.getElementById('line').value,
+                        beautician: document.getElementById('appointmentBeautician').value,
+                        date: document.getElementById('appointmentDate').value,
+                        timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
+                        services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
+                        totalPrice: document.querySelector('.total-price').textContent,
+                        totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
+                        notes: document.getElementById('notes').value
+                    };
+                    
+                    fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('網路回應不正常');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('預約已成功提交！我們會盡快與您聯繫確認。');
+                            window.location.reload(); // 重新載入頁面
+                        } else {
+                            alert('預約提交失敗：' + (data.message || '未知錯誤'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('預約提交時發生錯誤，請稍後再試。\n錯誤訊息：' + error.message);
+                    });
+                }
             }
     </script>
 </body>
