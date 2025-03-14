@@ -578,6 +578,103 @@
             font-weight: bold;
             color: #e83e8c;
         }
+        /* 在現有的 CSS 中添加以下樣式 */
+        @media (max-width: 768px) {
+            .weekly-calendar {
+                position: relative;
+                overflow: hidden;
+            }
+        
+            .calendar-grid {
+                display: grid;
+                grid-template-columns: 60px repeat(7, minmax(140px, 1fr));
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE and Edge */
+                position: relative;
+                padding-bottom: 10px; /* 為滾動條預留空間 */
+            }
+        
+            .calendar-grid::-webkit-scrollbar {
+                display: none; /* Chrome, Safari and Opera */
+            }
+        
+            .calendar-header-cell:first-child,
+            .time-cell {
+                position: sticky;
+                left: 0;
+                z-index: 2;
+                background-color: #f8f9fa;
+                box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            }
+        
+            .calendar-header-cell {
+                padding: 8px 4px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+        
+            .time-cell {
+                padding: 8px 4px;
+                font-size: 14px;
+            }
+        
+            .schedule-cell {
+                min-height: 50px;
+                padding: 4px;
+            }
+        
+            .beautician-schedule {
+                font-size: 11px;
+                padding: 2px;
+            }
+        
+            /* 添加滑動指示器 */
+            .scroll-indicator {
+                position: absolute;
+                bottom: 0;
+                left: 60px; /* 與時間列寬度相同 */
+                right: 0;
+                height: 3px;
+                background-color: #f0f0f0;
+            }
+        
+            .scroll-thumb {
+                position: absolute;
+                height: 100%;
+                background-color: #e83e8c;
+                border-radius: 3px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+        
+            .calendar-grid:active + .scroll-indicator .scroll-thumb {
+                opacity: 1;
+            }
+        
+            /* 添加左右漸變效果 */
+            .fade-edge {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 20px;
+                pointer-events: none;
+                z-index: 3;
+            }
+        
+            .fade-left {
+                left: 60px; /* 與時間列寬度相同 */
+                background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+            }
+        
+            .fade-right {
+                right: 0;
+                background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+            }
+        }
+        
     </style>
 </head>
 <body>
