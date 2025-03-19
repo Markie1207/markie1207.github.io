@@ -1053,10 +1053,11 @@
                     notes: document.getElementById('notes').value
                 };
                 
-                fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
+                fetch('http://192.168.13.6:3000/submit_appointment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
                 },
                 body: JSON.stringify(formData)
             })
