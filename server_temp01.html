@@ -1053,7 +1053,7 @@
                     notes: document.getElementById('notes').value
                 };
                 
-                fetch('http://192.168.13.6:8080/submit_appointment', {
+                fetch('/api/submit_appointment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
