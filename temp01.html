@@ -1425,7 +1425,7 @@
                         notes: document.getElementById('notes').value
                     };
                     
-                    fetch('https://markie1207.pythonanywhere.com/submit_appointment', {
+                    fetch('http://192.168.13.6:8080/api/submit_appointment', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
