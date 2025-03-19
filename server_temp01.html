@@ -1023,37 +1023,47 @@
 
             // 表單提交處理
             function handleFormSubmit(e) {
-                e.preventDefault();
-                
-                if (!document.getElementById('appointmentBeautician').value) {
-                    alert('請選擇美甲師');
-                    return;
-                }
-                
-                if (!document.getElementById('appointmentDate').value) {
-                    alert('請選擇預約日期');
-                    return;
-                }
-                
-                if (!document.getElementById('appointmentTime').value) {
-                    alert('請選擇預約時段');
-                    return;
-                }
-                
-                const formData = {
-                    name: document.getElementById('name').value,
-                    phone: document.getElementById('phone').value,
-                    line: document.getElementById('line').value,
-                    beautician: document.getElementById('appointmentBeautician').value,
-                    date: document.getElementById('appointmentDate').value,
-                    timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
-                    services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
-                    totalPrice: document.querySelector('.total-price').textContent,
-                    totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
-                    notes: document.getElementById('notes').value
-                };
-                
-                fetch('http://192.168.13.6:8080/api/submit_appointment', {
+            e.preventDefault();
+            
+            // 表單驗證
+            if (!document.getElementById('appointmentBeautician').value) {
+                alert('請選擇美甲師');
+                return;
+            }
+            
+            if (!document.getElementById('appointmentDate').value) {
+                alert('請選擇預約日期');
+                return;
+            }
+            
+            if (!document.getElementById('appointmentTime').value) {
+                alert('請選擇預約時段');
+                return;
+            }
+            
+            // 收集表單數據
+            const formData = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                line: document.getElementById('line').value,
+                beautician: document.getElementById('appointmentBeautician').value,
+                date: document.getElementById('appointmentDate').value,
+                timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
+                time: document.getElementById('appointmentTime').value, // 添加單獨的時間欄位
+                services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
+                totalPrice: document.querySelector('.total-price').textContent,
+                totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
+                notes: document.getElementById('notes').value
+            };
+            
+            // 顯示提交中狀態
+            const submitButton = document.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = '提交中...';
+            submitButton.disabled = true;
+            
+            // 發送到伺服器
+            fetch('http://192.168.13.6:8080/api/submit_appointment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1077,6 +1087,11 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('預約提交時發生錯誤，請稍後再試。\n錯誤訊息：' + error.message);
+            })
+            .finally(() => {
+                // 恢復按鈕狀態
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
             });
             }
     </script>
