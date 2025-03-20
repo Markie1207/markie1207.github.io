@@ -1,47 +1,6 @@
-# 環境變數文件
+# 環境變數和配置文件
 .env
-.env.local
-.env.development
-.env.test
-.env.production
-
-# Python 相關
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-venv/
-ENV/
-.venv/
-.pytest_cache/
-
-# 虛擬環境
-virtualenv/
-
-# 資料庫
-*.sqlite3
-*.db
-
-# 日誌文件
-*.log
-logs/
+config.js
 
 # 系統文件
 .DS_Store
@@ -50,25 +9,13 @@ Thumbs.db
 # 編輯器配置
 .vscode/
 .idea/
-*.swp
-*.swo
-.project
-.pydevproject
-.settings/
 
-# 前端相關
+# 依賴目錄 (如果有使用 npm)
 node_modules/
-bower_components/
-*.min.css
-*.min.js
 
-# 暫存文件
-.tmp/
-temp/
-tmp/
+# 日誌文件
+*.log
 
-# 敏感資訊
-*.pem
-*.key
-config.json
-credentials.json
+# 構建輸出
+dist/
+build/
