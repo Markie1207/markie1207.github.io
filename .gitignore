@@ -1,1 +1,12 @@
+# 環境變數文件
+.env
+.env.local
+.env.development
+.env.test
+.env.production
 
+# 其他常見需要忽略的文件
+node_modules/
+.DS_Store
+.vscode/
+*.log
