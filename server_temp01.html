@@ -476,6 +476,8 @@
         }
     </style>
 </head>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <body>
     <div class="container">
         <h1>美甲預約表單</h1>
@@ -757,343 +759,338 @@
             </div>
         </form>
     </div>
-
     <script>
-            // 頁面加載時的初始化
-            window.addEventListener('load', function() {
-                setMinDate();
-                const totalDuration = calculateTotalDuration();
-                document.getElementById('requiredDuration').textContent = totalDuration;
-                generateAvailableTimeSlots();
-                
-                // 初始化所有事件監聽器
-                initializeEventListeners();
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyCtoSTh5Lc9-vvaFQJheKYaSTZlmRq4N1Q",
+            authDomain: "markie1207-bea98.firebaseapp.com",
+            projectId: "markie1207-bea98",
+            storageBucket: "markie1207-bea98.firebasestorage.app",
+            messagingSenderId: "101082808654",
+            appId: "1:101082808654:web:921b23bf06b132d2671e1f",
+
+        };
+
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // DOM 載入完成後執行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設置最小日期為今天
+            setMinDate();
+            initializeEventListeners();
+        });
+
+        // 初始化所有事件監聽器
+        function initializeEventListeners() {
+            // 服務選項點擊事件
+            document.querySelectorAll('.service-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    updateTotalPrice();
+                    updateTotalDuration();
+                });
             });
 
-            // 初始化所有事件監聽器
-            function initializeEventListeners() {
-                // 服務選項點擊處理
-                document.querySelectorAll('.service-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        this.classList.toggle('selected');
-                        updateTotalPrice();
-                        updateTotalDuration();
-                    });
+            // 美甲師選擇事件
+            document.querySelectorAll('.schedule-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.schedule-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('appointmentBeautician').value = this.dataset.beautician;
+                    updateAppointmentSummary();
                 });
+            });
 
-                // 美甲師選擇處理
-                document.querySelectorAll('.schedule-tab').forEach(tab => {
-                    tab.addEventListener('click', function() {
-                        document.querySelectorAll('.schedule-tab').forEach(t => 
-                            t.classList.remove('active')
-                        );
-                        this.classList.add('active');
-                        const beauticianId = this.dataset.beautician;
-                        document.getElementById('appointmentBeautician').value = beauticianId;
-                        document.getElementById('summaryBeautician').textContent = beauticianId;
-                        updateAppointmentSummary();
-                    });
+                // 日期選擇相關事件
+            const dateInput = document.getElementById('appointmentDate');
+            const dateDisplay = document.getElementById('dateDisplay');
+            
+            if (dateInput) {
+                dateInput.addEventListener('change', handleDateChange);
+            }
+            
+            // 添加點擊日期顯示框的事件
+            if (dateDisplay) {
+                dateDisplay.addEventListener('click', function() {
+                    dateInput.showPicker();
                 });
-
-                // 日期選擇處理
-                document.getElementById('appointmentDate').addEventListener('change', function() {
-                    const selectedDate = this.value;
-                    if (selectedDate) {
-                        const dateObj = new Date(selectedDate);
-                        const formattedDate = dateObj.toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit'
-                        });
-                        document.getElementById('dateDisplay').value = formattedDate;
-                        
-                        const formattedDateLong = dateObj.toLocaleDateString('zh-TW', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            weekday: 'long'
-                        });
-                        document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
-                        document.getElementById('summaryDate').textContent = formattedDateLong;
-                        document.querySelector('.selected-date-display').style.display = 'block';
-                        
-                        document.getElementById('appointmentTime').value = '';
-                        document.getElementById('appointmentEndTime').value = '';
-                        document.getElementById('timeRangeDisplay').style.display = 'none';
-                        
-                        generateAvailableTimeSlots();
-                    } else {
-                        document.getElementById('dateDisplay').value = '';
-                        document.querySelector('.selected-date-display').style.display = 'none';
-                    }
-                });
-
-                // 點擊日期顯示框時觸發日期選擇
-                document.getElementById('dateDisplay').addEventListener('click', function() {
-                    document.getElementById('appointmentDate').showPicker();
-                });
-
-                // 步驟切換按鈕事件
-                document.getElementById('toStep2').addEventListener('click', function() {
-                    if (validateStep1()) {
-                        switchStep('step1', 'step2');
-                    }
-                });
-
-                document.getElementById('backToStep1').addEventListener('click', function() {
-                    switchStep('step2', 'step1');
-                });
-
-                document.getElementById('toStep3').addEventListener('click', function() {
-                    if (validateStep2()) {
-                        switchStep('step2', 'step3');
-                        updateServicesSummary();
-                        const totalDuration = calculateTotalDuration();
-                        document.getElementById('requiredDuration').textContent = totalDuration;
-                        generateAvailableTimeSlots();
-                    }
-                });
-
-                document.getElementById('backToStep2').addEventListener('click', function() {
-                    switchStep('step3', 'step2');
-                });
-
-                // 表單提交處理
-                document.getElementById('nailAppointmentForm').addEventListener('submit', handleFormSubmit);
             }
 
-            // 驗證步驟1
-            function validateStep1() {
-                const nameInput = document.getElementById('name');
-                const phoneInput = document.getElementById('phone');
-                
-                if (!nameInput.value) {
-                    alert('請輸入姓名');
-                    nameInput.focus();
-                    return false;
-                }
-                
-                if (!phoneInput.value || !phoneInput.checkValidity()) {
-                    alert('請輸入有效的手機號碼');
-                    phoneInput.focus();
-                    return false;
-                }
-                
-                return true;
-            }
+            // 步驟切換按鈕事件
+            setupStepButtons();
 
-            // 驗證步驟2
-            function validateStep2() {
-                const selectedServices = document.querySelectorAll('.service-option.selected');
-                if (selectedServices.length === 0) {
-                    document.getElementById('serviceError').style.display = 'block';
-                    return false;
-                }
-                document.getElementById('serviceError').style.display = 'none';
-                return true;
+            // 表單提交事件
+            const form = document.getElementById('nailAppointmentForm');
+            if (form) {
+                form.addEventListener('submit', handleFormSubmit);
             }
+        }
 
-            // 切換步驟
-            function switchStep(fromStep, toStep) {
-                document.getElementById(fromStep).style.display = 'none';
-                document.getElementById(toStep).style.display = 'block';
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            }
-
-            // 設置最小日期
-            function setMinDate() {
+        // 設置最小日期
+        function setMinDate() {
+            const dateInput = document.getElementById('appointmentDate');
+            if (dateInput) {
                 const today = new Date();
                 const yyyy = today.getFullYear();
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
                 const dd = String(today.getDate()).padStart(2, '0');
-                const minDate = `${yyyy}-${mm}-${dd}`;
-                document.getElementById('appointmentDate').min = minDate;
+                dateInput.min = `${yyyy}-${mm}-${dd}`;
             }
+        }
 
-            // 更新總金額
-            function updateTotalPrice() {
-                let total = 0;
-                document.querySelectorAll('.service-option.selected').forEach(option => {
-                    total += parseInt(option.dataset.price);
+        // 處理日期變更
+        function handleDateChange(event) {
+            const selectedDate = event.target.value;
+            if (selectedDate) {
+                const dateObj = new Date(selectedDate);
+                updateDateDisplay(dateObj);
+                generateAvailableTimeSlots();
+            }
+        }
+
+        // 更新日期顯示
+        function updateDateDisplay(dateObj) {
+            const formattedDate = dateObj.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            
+            const formattedDateLong = dateObj.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+
+            document.getElementById('dateDisplay').value = formattedDate;
+            document.getElementById('selectedDateDisplay').textContent = formattedDateLong;
+            document.getElementById('summaryDate').textContent = formattedDateLong;
+            document.querySelector('.selected-date-display').style.display = 'block';
+        }
+
+        // 設置步驟按鈕
+        function setupStepButtons() {
+            const toStep2 = document.getElementById('toStep2');
+            const backToStep1 = document.getElementById('backToStep1');
+            const toStep3 = document.getElementById('toStep3');
+            const backToStep2 = document.getElementById('backToStep2');
+
+            if (toStep2) {
+                toStep2.addEventListener('click', () => {
+                    if (validateStep1()) switchStep('step1', 'step2');
                 });
-                document.querySelector('.total-price').textContent = `NT$${total}`;
-                document.getElementById('summaryPrice').textContent = `NT$${total}`;
             }
 
-            // 更新總時長
-            function updateTotalDuration() {
-                const totalDuration = calculateTotalDuration();
-                document.getElementById('totalDuration').textContent = totalDuration;
-                document.getElementById('summaryDuration').textContent = `${totalDuration} 分鐘`;
+            if (backToStep1) {
+                backToStep1.addEventListener('click', () => switchStep('step2', 'step1'));
             }
 
-            // 計算總時長
-            function calculateTotalDuration() {
-                let totalDuration = 0;
-                document.querySelectorAll('.service-option.selected').forEach(option => {
-                    totalDuration += parseInt(option.dataset.duration);
-                });
-                return totalDuration;
-            }
-
-            // 更新服務項目摘要
-            function updateServicesSummary() {
-                const selectedServices = document.querySelectorAll('.service-option.selected');
-                const servicesList = Array.from(selectedServices).map(service => 
-                    service.querySelector('.service-name').textContent
-                );
-                document.getElementById('summaryServices').textContent = servicesList.join(', ');
-            }
-
-            // 更新預約摘要
-            function updateAppointmentSummary() {
-                document.getElementById('appointmentSummary').style.display = 'block';
-            }
-
-            // 生成可用時段
-            function generateAvailableTimeSlots() {
-                const totalDuration = calculateTotalDuration();
-                const timeSlotsContainer = document.getElementById('availableTimeSlots');
-                timeSlotsContainer.innerHTML = '';
-                
-                const startHour = 10;
-                const endHour = 20;
-                const durationInHours = totalDuration / 60;
-                const latestStartHour = endHour - durationInHours;
-                
-                for (let hour = startHour; hour < endHour; hour++) {
-                    for (let minute of [0, 30]) {
-                        const timePoint = hour + minute / 60;
-                        if (timePoint > latestStartHour) continue;
-                        
-                        const formattedHour = Math.floor(timePoint);
-                        const formattedMinute = minute === 0 ? '00' : '30';
-                        const timeText = `${formattedHour}:${formattedMinute}`;
-                        
-                        const timeSlot = document.createElement('div');
-                        timeSlot.className = 'time-slot';
-                        timeSlot.dataset.time = timeText;
-                        timeSlot.dataset.timePoint = timePoint;
-                        timeSlot.textContent = timeText;
-                        
-                        timeSlot.addEventListener('click', function() {
-                            selectTimeSlot(this);
-                        });
-                        
-                        timeSlotsContainer.appendChild(timeSlot);
+            if (toStep3) {
+                toStep3.addEventListener('click', () => {
+                    if (validateStep2()) {
+                        switchStep('step2', 'step3');
+                        updateServicesSummary();
+                        generateAvailableTimeSlots();
                     }
+                });
+            }
+
+            if (backToStep2) {
+                backToStep2.addEventListener('click', () => switchStep('step3', 'step2'));
+            }
+        }
+
+        // 驗證步驟1
+        function validateStep1() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!name) {
+                alert('請輸入姓名');
+                return false;
+            }
+            
+            if (!phone || !/^\d{10}$/.test(phone)) {
+                alert('請輸入有效的手機號碼');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 驗證步驟2
+        function validateStep2() {
+            const selectedServices = document.querySelectorAll('.service-option.selected');
+            if (selectedServices.length === 0) {
+                alert('請至少選擇一項服務');
+                return false;
+            }
+            return true;
+        }
+
+        // 切換步驟
+        function switchStep(fromStep, toStep) {
+            document.getElementById(fromStep).style.display = 'none';
+            document.getElementById(toStep).style.display = 'block';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // 更新總價格
+        function updateTotalPrice() {
+            let total = 0;
+            document.querySelectorAll('.service-option.selected').forEach(option => {
+                total += parseInt(option.dataset.price || 0);
+            });
+            document.querySelector('.total-price').textContent = `NT$${total}`;
+            document.getElementById('summaryPrice').textContent = `NT$${total}`;
+        }
+
+        // 更新總時長
+        function updateTotalDuration() {
+            const totalDuration = calculateTotalDuration();
+            document.getElementById('totalDuration').textContent = totalDuration;
+            document.getElementById('summaryDuration').textContent = `${totalDuration} 分鐘`;
+            if (document.getElementById('requiredDuration')) {
+                document.getElementById('requiredDuration').textContent = totalDuration;
+            }
+        }
+
+        // 計算總時長
+        function calculateTotalDuration() {
+            let total = 0;
+            document.querySelectorAll('.service-option.selected').forEach(option => {
+                total += parseInt(option.dataset.duration || 0);
+            });
+            return total;
+        }
+
+        // 更新服務摘要
+        function updateServicesSummary() {
+            const services = Array.from(document.querySelectorAll('.service-option.selected'))
+                .map(service => service.querySelector('.service-name').textContent);
+            document.getElementById('summaryServices').textContent = services.join(', ');
+            document.getElementById('appointmentSummary').style.display = 'block';
+        }
+
+        // 生成可用時段
+        function generateAvailableTimeSlots() {
+            const container = document.getElementById('availableTimeSlots');
+            if (!container) return;
+
+            container.innerHTML = '';
+            const totalDuration = calculateTotalDuration();
+            const durationHours = totalDuration / 60;
+
+            for (let hour = 10; hour < 20; hour++) {
+                for (let minute of [0, 30]) {
+                    if (hour + minute/60 + durationHours > 20) continue;
+
+                    const timeSlot = document.createElement('div');
+                    timeSlot.className = 'time-slot';
+                    const timeText = `${hour}:${minute === 0 ? '00' : '30'}`;
+                    timeSlot.textContent = timeText;
+                    timeSlot.dataset.time = timeText;
+                    
+                    timeSlot.addEventListener('click', () => selectTimeSlot(timeSlot, totalDuration));
+                    container.appendChild(timeSlot);
                 }
             }
+        }
 
-            // 選擇時段
-            function selectTimeSlot(selectedSlot) {
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.classList.remove('selected');
-                    slot.classList.remove('reserved');
-                });
-                
-                selectedSlot.classList.add('selected');
-                
-                const startTimePoint = parseFloat(selectedSlot.dataset.timePoint);
-                const totalDuration = calculateTotalDuration();
-                const durationInHours = totalDuration / 60;
-                const endTimePoint = startTimePoint + durationInHours;
-                
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    const slotTimePoint = parseFloat(slot.dataset.timePoint);
-                    if (slotTimePoint > startTimePoint && slotTimePoint < endTimePoint) {
-                        slot.classList.add('reserved');
-                    }
-                });
-                
-                const startTime = selectedSlot.dataset.time;
-                document.getElementById('appointmentTime').value = startTime;
-                
-                const endHour = Math.floor(endTimePoint);
-                const endMinute = Math.round((endTimePoint - endHour) * 60);
-                const formattedEndMinute = endMinute === 0 ? '00' : endMinute.toString();
-                const endTime = `${endHour}:${formattedEndMinute}`;
-                
-                document.getElementById('appointmentEndTime').value = endTime;
-                document.getElementById('appointmentTimeRange').textContent = `${startTime} - ${endTime}`;
-                document.getElementById('timeRangeDisplay').style.display = 'block';
-                document.getElementById('summaryTime').textContent = `${startTime} - ${endTime}`;
-                updateAppointmentSummary();
-            }
+        // 選擇時段
+        function selectTimeSlot(slot, duration) {
+            document.querySelectorAll('.time-slot').forEach(s => {
+                s.classList.remove('selected', 'reserved');
+            });
 
-            // 表單提交處理
-            function handleFormSubmit(e) {
-            e.preventDefault();
+            slot.classList.add('selected');
+            const startTime = slot.dataset.time;
+            const [startHour, startMinute] = startTime.split(':').map(Number);
             
-            // 表單驗證
+            const totalMinutes = startHour * 60 + startMinute + duration;
+            const endHour = Math.floor(totalMinutes / 60);
+            const endMinute = totalMinutes % 60;
+            const endTime = `${endHour}:${endMinute.toString().padStart(2, '0')}`;
+
+            document.getElementById('appointmentTime').value = startTime;
+            document.getElementById('appointmentEndTime').value = endTime;
+            document.getElementById('appointmentTimeRange').textContent = `${startTime} - ${endTime}`;
+            document.getElementById('timeRangeDisplay').style.display = 'block';
+            document.getElementById('summaryTime').textContent = `${startTime} - ${endTime}`;
+        }
+
+        // 處理表單提交
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            // 驗證必填欄位
+            if (!validateSubmission()) return;
+
+            // 收集表單數據
+            const formData = collectFormData();
+
+            // 禁用提交按鈕
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = '提交中...';
+
+            // 提交到 Firestore
+            db.collection('appointments').add(formData)
+                .then(() => {
+                    alert('預約已成功提交！我們會盡快與您聯繫確認。');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error adding document: ', error);
+                    alert('預約提交失敗，請稍後再試。');
+                    submitButton.disabled = false;
+                    submitButton.textContent = '提交預約';
+                });
+        }
+
+        // 驗證提交
+        function validateSubmission() {
             if (!document.getElementById('appointmentBeautician').value) {
                 alert('請選擇美甲師');
-                return;
+                return false;
             }
-            
             if (!document.getElementById('appointmentDate').value) {
                 alert('請選擇預約日期');
-                return;
+                return false;
             }
-            
             if (!document.getElementById('appointmentTime').value) {
                 alert('請選擇預約時段');
-                return;
+                return false;
             }
+            return true;
+        }
+
+        // 收集表單數據
+        function collectFormData() {
+            const selectedServices = document.querySelectorAll('.service-option.selected');
             
-            // 收集表單數據
-            const formData = {
+            return {
                 name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
-                line: document.getElementById('line').value,
+                line: document.getElementById('line').value || '',
                 beautician: document.getElementById('appointmentBeautician').value,
                 date: document.getElementById('appointmentDate').value,
                 timeRange: `${document.getElementById('appointmentTime').value} - ${document.getElementById('appointmentEndTime').value}`,
-                time: document.getElementById('appointmentTime').value, // 添加單獨的時間欄位
-                services: Array.from(document.querySelectorAll('.service-option.selected')).map(service => service.dataset.value),
+                services: Array.from(selectedServices).map(service => ({
+                    name: service.querySelector('.service-name').textContent,
+                    price: service.dataset.price,
+                    duration: service.dataset.duration
+                })),
                 totalPrice: document.querySelector('.total-price').textContent,
-                totalDuration: document.getElementById('totalDuration').textContent + ' 分鐘',
-                notes: document.getElementById('notes').value
+                totalDuration: `${calculateTotalDuration()} 分鐘`,
+                notes: document.getElementById('notes').value || '',
+                status: '待確認',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
-            
-            // 顯示提交中狀態
-            const submitButton = document.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.textContent;
-            submitButton.textContent = '提交中...';
-            submitButton.disabled = true;
-            
-            // 發送到伺服器
-            fetch('https://192.168.77.133:8000/api/submit_appointment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('網路回應不正常');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    alert('預約已成功提交！我們會盡快與您聯繫確認。');
-                    window.location.reload(); // 重新載入頁面
-                } else {
-                    alert('預約提交失敗：' + (data.message || '未知錯誤'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('預約提交時發生錯誤，請稍後再試。\n錯誤訊息：' + error.message);
-            })
-            .finally(() => {
-                // 恢復按鈕狀態
-                submitButton.textContent = originalButtonText;
-                submitButton.disabled = false;
-            });
-            }
-    </script>
-</body>
+        }
+    </script>      
+<script src="server_temp01.js"></script></body>
 </html>
