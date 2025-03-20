@@ -5,8 +5,70 @@
 .env.test
 .env.production
 
-# 其他常見需要忽略的文件
-node_modules/
-.DS_Store
-.vscode/
+# Python 相關
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+ENV/
+.venv/
+.pytest_cache/
+
+# 虛擬環境
+virtualenv/
+
+# 資料庫
+*.sqlite3
+*.db
+
+# 日誌文件
 *.log
+logs/
+
+# 系統文件
+.DS_Store
+Thumbs.db
+
+# 編輯器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# 前端相關
+node_modules/
+bower_components/
+*.min.css
+*.min.js
+
+# 暫存文件
+.tmp/
+temp/
+tmp/
+
+# 敏感資訊
+*.pem
+*.key
+config.json
+credentials.json
