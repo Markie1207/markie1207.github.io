@@ -773,6 +773,7 @@
         
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // DOM 載入完成後執行
         document.addEventListener('DOMContentLoaded', function() {
@@ -794,7 +795,7 @@
 
             // 美甲師選擇事件
             document.querySelectorAll('.schedule-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
+                    tab.addEventListener('click', function() {
                     document.querySelectorAll('.schedule-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     document.getElementById('appointmentBeautician').value = this.dataset.beautician;
@@ -1091,5 +1092,4 @@
             };
         }
     </script>      
-<script src="server_temp01.js"></script></body>
 </html>
